@@ -12,3 +12,12 @@ This document records key decisions made throughout the development of Fresher J
 - **Resilient ATS Endpoints**: Curated and verified 32 high-volume companies hiring in India on Greenhouse, Lever, and Ashby (`companies.json`). This reliably yields over 5,000 raw postings without requiring paid or rate-limited third-party aggregators.
 - **Per-Host Rate Limiter**: Enforced 1 request/second per host with exponential backoff on 429/5xx status codes and a transparent User-Agent header (`FresherJobsIndiaBot/1.0`).
 - **HTML Normalization**: Ingested descriptions are cleaned of HTML tags and entity-escaped characters (`&lt;`, `&gt;`, `&amp;`, `&nbsp;`) to ensure high-quality text for subsequent pre-filtering, deduplication, and LLM classification.
+
+## Phase 3: Pre-filter & Deduplication Engine
+- **Pre-filtering Strategy**: Two-stage fast keyword filtering without LLM cost:
+  1. Geographic validation: Keeps posts tagged with India, Indian cities (Bengaluru, Mumbai, Pune, Delhi NCR, Hyderabad, Chennai, etc.), or Remote/WFH, while excluding foreign-only locations.
+  2. Experience & role matching: Accepts positive keywords (`fresher`, `intern`, `trainee`, `graduate`, `entry level`, `0-1 years`, `0-2 years`, `junior`, `associate`) and suppresses senior roles (`senior`, `lead`, `principal`, `director`, `vp`, `head`) unless the title explicitly denotes an internship.
+- **Canonical City & URL Normalization**: Extracted canonical cities (Bengaluru, Mumbai, Pune, Delhi NCR, Hyderabad, Chennai, Kolkata, Ahmedabad, Jaipur, Remote, Other India) and stripped tracking parameters (`utm_*`, `ref`, `gh_src`, etc.) from apply URLs.
+- **Two-tier Deduplication**:
+  1. Exact dedupe via SHA-1 of normalized `company + title + canonical_city` and canonical URL uniqueness.
+  2. Fuzzy dedupe using trigram similarity (threshold > 0.85) matching Postgres `pg_trgm` similarity to detect duplicate postings from different feeds, recording the earliest post in `duplicate_of`.
