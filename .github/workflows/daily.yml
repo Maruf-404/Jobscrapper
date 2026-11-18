@@ -1,0 +1,85 @@
+name: Daily Job Ingestion Pipeline
+
+on:
+  schedule:
+    # 3:00 AM IST daily (21:30 UTC previous day)
+    - cron: '30 21 * * *'
+  workflow_dispatch:
+
+jobs:
+  ingest:
+    name: Run Ingestion Pipeline
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Execute Pipeline
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL: ${{ secrets.GEMINI_MODEL || 'gemini-2.5-flash' }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          ADZUNA_APP_ID: ${{ secrets.ADZUNA_APP_ID }}
+          ADZUNA_APP_KEY: ${{ secrets.ADZUNA_APP_KEY }}
+          JOOBLE_API_KEY: ${{ secrets.JOOBLE_API_KEY }}
+          PRICE_IN_PER_M: ${{ secrets.PRICE_IN_PER_M || '0.075' }}
+          PRICE_OUT_PER_M: ${{ secrets.PRICE_OUT_PER_M || '0.30' }}
+          LLM_RPM: ${{ secrets.LLM_RPM || '10' }}
+        run: npm run pipeline
+
+      - name: Verify Active Posts Threshold
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          node -e "
+            const { createClient } = require('@supabase/supabase-js');
+            const fs = require('fs');
+            const path = require('path');
+
+            async function check() {
+              const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+              const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+              let activeCount = 0;
+
+              if (url && key) {
+                const supabase = createClient(url, key);
+                const { count, error } = await supabase
+                  .from('posts')
+                  .select('id', { count: 'exact', head: true })
+                  .eq('is_active', true)
+                  .eq('is_fresher', true)
+                  .is('duplicate_of', null);
+                if (error) {
+                  console.error('Supabase query error:', error);
+                  process.exit(1);
+                }
+                activeCount = count || 0;
+              } else {
+                const dbPath = path.resolve('data/db_local.json');
+                if (fs.existsSync(dbPath)) {
+                  const db = JSON.parse(fs.readFileSync(dbPath, 'utf-8'));
+                  activeCount = Object.values(db.posts || {}).filter(p => p.is_active && p.is_fresher && !p.duplicate_of).length;
+                }
+              }
+
+              console.log('Post-run active fresher count:', activeCount);
+              if (activeCount < 100) {
+                console.error('FAILURE: Active posts count (' + activeCount + ') is fewer than minimum required 100.');
+                process.exit(1);
+              }
+              console.log('SUCCESS: Active posts count threshold satisfied (>= 100).');
+            }
+            check();
+          "

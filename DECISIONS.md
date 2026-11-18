@@ -35,3 +35,8 @@ This document records key decisions made throughout the development of Fresher J
 - **Search Strategy**: Combined PostgreSQL Full-Text Search (`fts tsvector`) using websearch syntax for complex queries with an `ilike` wildcard fallback for short terms (< 3 characters) or special substrings.
 - **URL-Driven Multi-Select Filtering**: Filter state (`role`, `city`, `source`, `recent`, `q`, `page`) is serialized directly into URL SearchParams, enabling shareable filtered URLs and native browser history navigation.
 - **Dedicated Demo `/stats` Page**: Created `/stats` displaying role distribution bars, geographic city spread, source breakdown, total duplicates filtered, and an audit table of the last 10 pipeline executions.
+
+## Phase 6: GitHub Actions Workflow & Comprehensive Documentation
+- **Scheduled Daily Job**: Configured `.github/workflows/daily.yml` with cron `30 21 * * *` (3:00 AM IST) and `workflow_dispatch` manual trigger. Added an automated health check step that verifies >= 100 active fresher posts exist post-run, failing the job otherwise.
+- **ToS Safety & Omission Justification**: Authored `docs/SOURCES.md` detailing the legal and architectural compliance of official APIs and unauthenticated company ATS feeds, while documenting the deliberate exclusion of LinkedIn, Naukri, Indeed, and Internshala due to strict ToS scraping prohibitions.
+- **System Architecture & Documentation**: Authored `docs/ARCHITECTURE.md` with complete Mermaid diagrams and data contracts, and `README.md` containing full operational setup, environment instructions, and acceptance verification steps.
