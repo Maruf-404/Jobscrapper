@@ -29,3 +29,9 @@ This document records key decisions made throughout the development of Fresher J
 - **Hybrid Storage & Service Role Isolation**: Implemented `DatabaseService` supporting remote Supabase Postgres with `SUPABASE_SERVICE_ROLE_KEY` and a graceful persistent local JSON store (`data/db_local.json`) for local development and offline verification.
 - **7-Day Staleness Policy**: Automatically marks posts not observed in consecutive pipeline executions within 7 days as `is_active = false`.
 - **Token Usage Audit**: Recorded `input_tokens`, `output_tokens`, `model`, and `posts_in_batch` in `llm_calls` to compute exact cost per 1,000 posts based on `PRICE_IN_PER_M` and `PRICE_OUT_PER_M`.
+
+## Phase 5: Next.js Frontend & Stats Dashboard
+- **Server Components & ISR**: Configured Next.js 14 App Router with Incremental Static Regeneration (`export const revalidate = 300`) to guarantee high-performance, edge-cached delivery under 2 seconds.
+- **Search Strategy**: Combined PostgreSQL Full-Text Search (`fts tsvector`) using websearch syntax for complex queries with an `ilike` wildcard fallback for short terms (< 3 characters) or special substrings.
+- **URL-Driven Multi-Select Filtering**: Filter state (`role`, `city`, `source`, `recent`, `q`, `page`) is serialized directly into URL SearchParams, enabling shareable filtered URLs and native browser history navigation.
+- **Dedicated Demo `/stats` Page**: Created `/stats` displaying role distribution bars, geographic city spread, source breakdown, total duplicates filtered, and an audit table of the last 10 pipeline executions.
