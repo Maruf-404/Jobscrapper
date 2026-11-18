@@ -21,3 +21,11 @@ This document records key decisions made throughout the development of Fresher J
 - **Two-tier Deduplication**:
   1. Exact dedupe via SHA-1 of normalized `company + title + canonical_city` and canonical URL uniqueness.
   2. Fuzzy dedupe using trigram similarity (threshold > 0.85) matching Postgres `pg_trgm` similarity to detect duplicate postings from different feeds, recording the earliest post in `duplicate_of`.
+
+## Phase 4: Gemini LLM Tagging & Cost Tracking
+- **Unified SDK Integration**: Integrated `@google/genai` (Google's latest official GenAI SDK) using model `gemini-2.5-flash` with `temperature: 0` and structured JSON schema output.
+- **Batching & Rate Limiting**: Batched 10 posts per API request to minimize token overhead and network latency. Throttled according to configurable `LLM_RPM` (default 10) with exponential backoff on HTTP 429.
+- **Dedupe Key Cache**: Checked database for existing tags by `dedupe_key` prior to invoking Gemini, guaranteeing zero duplicate LLM calls on recurring runs.
+- **Hybrid Storage & Service Role Isolation**: Implemented `DatabaseService` supporting remote Supabase Postgres with `SUPABASE_SERVICE_ROLE_KEY` and a graceful persistent local JSON store (`data/db_local.json`) for local development and offline verification.
+- **7-Day Staleness Policy**: Automatically marks posts not observed in consecutive pipeline executions within 7 days as `is_active = false`.
+- **Token Usage Audit**: Recorded `input_tokens`, `output_tokens`, `model`, and `posts_in_batch` in `llm_calls` to compute exact cost per 1,000 posts based on `PRICE_IN_PER_M` and `PRICE_OUT_PER_M`.
