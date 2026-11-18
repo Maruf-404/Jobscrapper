@@ -23,7 +23,9 @@ export function loadEnv(): PipelineEnv {
   const geminiApiKey = process.env.GEMINI_API_KEY;
   const geminiModel = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const supabaseAnonKey =
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
   const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   const adzunaAppId = process.env.ADZUNA_APP_ID;
   const adzunaAppKey = process.env.ADZUNA_APP_KEY;

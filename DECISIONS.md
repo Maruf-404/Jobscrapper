@@ -40,3 +40,10 @@ This document records key decisions made throughout the development of Fresher J
 - **Scheduled Daily Job**: Configured `.github/workflows/daily.yml` with cron `30 21 * * *` (3:00 AM IST) and `workflow_dispatch` manual trigger. Added an automated health check step that verifies >= 100 active fresher posts exist post-run, failing the job otherwise.
 - **ToS Safety & Omission Justification**: Authored `docs/SOURCES.md` detailing the legal and architectural compliance of official APIs and unauthenticated company ATS feeds, while documenting the deliberate exclusion of LinkedIn, Naukri, Indeed, and Internshala due to strict ToS scraping prohibitions.
 - **System Architecture & Documentation**: Authored `docs/ARCHITECTURE.md` with complete Mermaid diagrams and data contracts, and `README.md` containing full operational setup, environment instructions, and acceptance verification steps.
+
+## Phase 7: Accuracy Scoring, Cost Analytics & Supabase SSR Integration
+- **Reproducible Seeded Sampling (`export:sample`)**: Used the Mulberry32 pseudo-random number generator with a deterministic seed (`42`) to draw exactly 50 active posts from the database into `data/handcheck_sample.csv` with the 9 PRD-mandated columns.
+- **Accuracy Scoring Engine (`score`)**: Developed an RFC 4180 compliant CSV parser to compare LLM predictions against ground truth labels, outputting role accuracy percentage, city accuracy percentage, combined accuracy, and a detailed list of confusion mistakes.
+- **Cost & Token Audit (`cost`)**: Aggregated tokens across all batches from `llm_calls`, computing average input and output tokens per post and extrapolating exact cost per 1,000 posts in USD and INR at current pricing.
+- **Full Catalog Dump (`export:all`)**: Implemented `scripts/export-all.ts` dumping all active posts to `data/posts.csv` for submission.
+- **Supabase SSR Helpers**: Installed `@supabase/ssr` and created `utils/supabase/server.ts`, `utils/supabase/client.ts`, `utils/supabase/middleware.ts`, and root `middleware.ts` supporting both standard anon keys and Supabase's new `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`.
