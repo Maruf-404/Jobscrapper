@@ -1,0 +1,194 @@
+[
+  {
+    "name": "Groww",
+    "slug": "groww",
+    "ats": "greenhouse",
+    "jobCount": 9
+  },
+  {
+    "name": "Inmobi",
+    "slug": "inmobi",
+    "ats": "greenhouse",
+    "jobCount": 75
+  },
+  {
+    "name": "Slice",
+    "slug": "slice",
+    "ats": "greenhouse",
+    "jobCount": 21
+  },
+  {
+    "name": "Elastic",
+    "slug": "elastic",
+    "ats": "greenhouse",
+    "jobCount": 379
+  },
+  {
+    "name": "Canonical",
+    "slug": "canonical",
+    "ats": "greenhouse",
+    "jobCount": 317
+  },
+  {
+    "name": "Thoughtworks",
+    "slug": "thoughtworks",
+    "ats": "greenhouse",
+    "jobCount": 34
+  },
+  {
+    "name": "Zscaler",
+    "slug": "zscaler",
+    "ats": "greenhouse",
+    "jobCount": 381
+  },
+  {
+    "name": "Rubrik",
+    "slug": "rubrik",
+    "ats": "greenhouse",
+    "jobCount": 196
+  },
+  {
+    "name": "Databricks",
+    "slug": "databricks",
+    "ats": "greenhouse",
+    "jobCount": 897
+  },
+  {
+    "name": "Stripe",
+    "slug": "stripe",
+    "ats": "greenhouse",
+    "jobCount": 788
+  },
+  {
+    "name": "Okta",
+    "slug": "okta",
+    "ats": "greenhouse",
+    "jobCount": 358
+  },
+  {
+    "name": "Pagerduty",
+    "slug": "pagerduty",
+    "ats": "greenhouse",
+    "jobCount": 46
+  },
+  {
+    "name": "Cloudflare",
+    "slug": "cloudflare",
+    "ats": "greenhouse",
+    "jobCount": 483
+  },
+  {
+    "name": "Meesho",
+    "slug": "meesho",
+    "ats": "lever",
+    "jobCount": 47
+  },
+  {
+    "name": "Posthog",
+    "slug": "posthog",
+    "ats": "ashby",
+    "jobCount": 10
+  },
+  {
+    "name": "Sentry",
+    "slug": "sentry",
+    "ats": "ashby",
+    "jobCount": 40
+  },
+  {
+    "name": "Vanta",
+    "slug": "vanta",
+    "ats": "ashby",
+    "jobCount": 77
+  },
+  {
+    "name": "Resend",
+    "slug": "resend",
+    "ats": "ashby",
+    "jobCount": 13
+  },
+  {
+    "name": "Modal",
+    "slug": "modal",
+    "ats": "ashby",
+    "jobCount": 53
+  },
+  {
+    "name": "Checkly",
+    "slug": "checkly",
+    "ats": "ashby",
+    "jobCount": 2
+  },
+  {
+    "name": "Linear",
+    "slug": "linear",
+    "ats": "ashby",
+    "jobCount": 33
+  },
+  {
+    "name": "Perplexity",
+    "slug": "perplexity",
+    "ats": "ashby",
+    "jobCount": 147
+  },
+  {
+    "name": "Elevenlabs",
+    "slug": "elevenlabs",
+    "ats": "ashby",
+    "jobCount": 128
+  },
+  {
+    "name": "Supabase",
+    "slug": "supabase",
+    "ats": "ashby",
+    "jobCount": 77
+  },
+  {
+    "name": "Neon",
+    "slug": "neon",
+    "ats": "ashby",
+    "jobCount": 1
+  },
+  {
+    "name": "Pinecone",
+    "slug": "pinecone",
+    "ats": "ashby",
+    "jobCount": 6
+  },
+  {
+    "name": "Weaviate",
+    "slug": "weaviate",
+    "ats": "ashby",
+    "jobCount": 2
+  },
+  {
+    "name": "Temporal",
+    "slug": "temporal",
+    "ats": "ashby",
+    "jobCount": 86
+  },
+  {
+    "name": "Ramp",
+    "slug": "ramp",
+    "ats": "ashby",
+    "jobCount": 181
+  },
+  {
+    "name": "Baseten",
+    "slug": "baseten",
+    "ats": "ashby",
+    "jobCount": 103
+  },
+  {
+    "name": "CRED",
+    "slug": "cred",
+    "ats": "lever",
+    "jobCount": 13
+  },
+  {
+    "name": "Pocket FM",
+    "slug": "pocketfm",
+    "ats": "lever",
+    "jobCount": 11
+  }
+]
