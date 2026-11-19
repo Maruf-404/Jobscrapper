@@ -1,8 +1,10 @@
 import { ExternalLink, MapPin, Building, Calendar, Sparkles } from 'lucide-react';
 import { PostItem, formatToIST } from '@/lib/posts';
+import HighlightText from './HighlightText';
 
 interface PostCardProps {
   post: PostItem;
+  highlightQuery?: string;
 }
 
 const ROLE_COLORS: Record<string, string> = {
@@ -43,7 +45,7 @@ function formatRelativeDate(isoDate: string | null): string {
   }
 }
 
-export default function PostCard({ post }: PostCardProps) {
+export default function PostCard({ post, highlightQuery }: PostCardProps) {
   const roleColor = ROLE_COLORS[post.role || 'Other'] || ROLE_COLORS['Other'];
   const sourceInfo = SOURCE_BADGES[post.source.toLowerCase()] || {
     label: post.source.toUpperCase(),
@@ -58,7 +60,7 @@ export default function PostCard({ post }: PostCardProps) {
           <span
             className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${roleColor}`}
           >
-            {post.role || 'General Entry Level'}
+            <HighlightText text={post.role || 'General Entry Level'} highlight={highlightQuery} />
           </span>
           <span
             className={`inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium border uppercase tracking-wider ${sourceInfo.style}`}
@@ -69,19 +71,23 @@ export default function PostCard({ post }: PostCardProps) {
 
         {/* Job Title & Company */}
         <h3 className="text-base font-semibold text-slate-900 group-hover:text-indigo-600 transition-colors line-clamp-2 leading-snug">
-          {post.title}
+          <HighlightText text={post.title} highlight={highlightQuery} />
         </h3>
 
         <div className="flex items-center space-x-1.5 text-sm font-medium text-slate-700 mt-1.5">
           <Building className="w-4 h-4 text-slate-400 shrink-0" />
-          <span className="truncate">{post.company}</span>
+          <span className="truncate">
+            <HighlightText text={post.company} highlight={highlightQuery} />
+          </span>
         </div>
 
         {/* Location & Relative Time */}
         <div className="flex flex-wrap items-center gap-y-1 gap-x-3 text-xs text-slate-500 mt-2.5">
           <div className="flex items-center space-x-1">
             <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-            <span className="font-medium text-slate-600">{post.city || 'India / Remote'}</span>
+            <span className="font-medium text-slate-600">
+              <HighlightText text={post.city || 'India / Remote'} highlight={highlightQuery} />
+            </span>
           </div>
 
           <div className="flex items-center space-x-1">
@@ -93,14 +99,14 @@ export default function PostCard({ post }: PostCardProps) {
         {/* Raw Location Subtitle if different */}
         {post.location_raw && post.location_raw !== post.city && (
           <p className="text-[11px] text-slate-400 mt-1 truncate" title={post.location_raw}>
-            {post.location_raw}
+            <HighlightText text={post.location_raw} highlight={highlightQuery} />
           </p>
         )}
 
         {/* Description snippet */}
         {post.description && (
           <p className="text-xs text-slate-500 mt-3 line-clamp-2 leading-relaxed">
-            {post.description}
+            <HighlightText text={post.description} highlight={highlightQuery} />
           </p>
         )}
       </div>

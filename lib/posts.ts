@@ -110,12 +110,19 @@ export async function getFilteredPosts(params: FilterParams): Promise<FilteredPo
         .is('duplicate_of', null);
 
       if (params.search && params.search.trim()) {
-        const s = params.search.trim();
-        // If word length >= 3, use tsvector search, else fallback to ilike
-        if (s.length >= 3 && !/[^\w\s]/.test(s)) {
-          query = query.textSearch('fts', s, { type: 'websearch', config: 'english' });
-        } else {
-          query = query.or(`title.ilike.%${s}%,company.ilike.%${s}%,description.ilike.%${s}%`);
+        const words = params.search
+          .trim()
+          .split(/\s+/)
+          .filter(Boolean)
+          .map((w) => w.replace(/[%,()]/g, '')); // Sanitize PostgREST reserved characters
+
+        // Compound AND across all words: each word must appear in at least one key field
+        for (const w of words) {
+          if (w.length > 0) {
+            query = query.or(
+              `title.ilike.%${w}%,company.ilike.%${w}%,role.ilike.%${w}%,city.ilike.%${w}%,location_raw.ilike.%${w}%,description.ilike.%${w}%`
+            );
+          }
         }
       }
 
@@ -162,13 +169,11 @@ export async function getFilteredPosts(params: FilterParams): Promise<FilteredPo
   ) as any[];
 
   if (params.search && params.search.trim()) {
-    const s = params.search.toLowerCase().trim();
-    items = items.filter(
-      p =>
-        (p.title || '').toLowerCase().includes(s) ||
-        (p.company || '').toLowerCase().includes(s) ||
-        (p.description || '').toLowerCase().includes(s)
-    );
+    const words = params.search.toLowerCase().trim().split(/\s+/).filter(Boolean);
+    items = items.filter((p) => {
+      const haystack = `${p.title || ''} ${p.company || ''} ${p.role || ''} ${p.city || ''} ${p.location_raw || ''} ${p.description || ''}`.toLowerCase();
+      return words.every((w) => haystack.includes(w));
+    });
   }
 
   if (params.roles && params.roles.length > 0) {
