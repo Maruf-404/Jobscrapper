@@ -131,20 +131,25 @@ export async function tagPostsWithGemini(posts: TaggingInputPost[]): Promise<Tag
       if (success) break;
 
       let attempts = 0;
-      const maxAttempts = 2;
-      let backoffMs = 1500;
+      const maxAttempts = 1;
 
       while (attempts < maxAttempts && !success) {
         try {
           console.log(`[LLM Batch ${batchIndex}] Using model: ${modelName}`);
-          const response = await ai.models.generateContent({
-            model: modelName,
-            contents: `${SYSTEM_PROMPT}\n\n${userPrompt}`,
-            config: {
-              temperature: 0,
-              responseMimeType: 'application/json',
-            },
-          });
+          const timeoutPromise = new Promise<never>((_, reject) =>
+            setTimeout(() => reject(new Error(`Timeout after 7000ms on model ${modelName}`)), 7000)
+          );
+          const response = await Promise.race([
+            ai.models.generateContent({
+              model: modelName,
+              contents: `${SYSTEM_PROMPT}\n\n${userPrompt}`,
+              config: {
+                temperature: 0,
+                responseMimeType: 'application/json',
+              },
+            }),
+            timeoutPromise,
+          ]);
 
           const rawText = response.text || '';
           let items: TaggingOutputItem[] = [];
@@ -211,17 +216,12 @@ export async function tagPostsWithGemini(posts: TaggingInputPost[]): Promise<Tag
           const is503 = err?.status === 503 || errStr.includes('503') || errStr.includes('high demand') || errStr.includes('UNAVAILABLE');
           
           console.warn(`[LLM Batch ${batchIndex}] Model ${modelName} attempt ${attempts} failed:`, errStr);
-          if (is503) {
-            console.warn(`[LLM Batch ${batchIndex}] Model ${modelName} experiencing high demand (503). Switching to fallback immediately...`);
+          if (is503 || errStr.includes('Timeout after')) {
+            console.warn(`[LLM Batch ${batchIndex}] Model ${modelName} failed or timed out. Switching to fallback immediately...`);
             break; // Skip remaining attempts for this model, immediately try next model in chain
           } else if (is429) {
-            console.warn(`Rate limit on ${modelName}, backing off for ${backoffMs}ms...`);
-            await new Promise((r) => setTimeout(r, backoffMs));
-            backoffMs *= 2;
-          } else if (attempts >= maxAttempts) {
-            console.warn(`[LLM Batch ${batchIndex}] Exhausted retries on ${modelName}. Trying next model...`);
-          } else {
-            await new Promise((r) => setTimeout(r, 1000));
+            console.warn(`Rate limit on ${modelName}, switching to next model...`);
+            break;
           }
         }
       }

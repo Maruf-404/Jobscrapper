@@ -124,8 +124,8 @@ export function isIndiaLocation(locationRaw: string): boolean {
     return regex.test(loc);
   });
 
-  // Check if it explicitly contains "India" or "IND" or ", IN"
-  const hasIndiaCountry = /(^|[^a-z0-9])(india|ind)\b/i.test(loc) || /,\s*in\b/i.test(loc);
+  // Check if it explicitly contains "India" or "IND" (excluding ", IN" which is Indiana, US)
+  const hasIndiaCountry = /(^|[^a-z0-9])(india|ind)\b/i.test(loc);
 
   // If it mentions a foreign location and does NOT mention India / Indian city, drop immediately
   if (hasForeign && !hasIndianCity && !hasIndiaCountry) {

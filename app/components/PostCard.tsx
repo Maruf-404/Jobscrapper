@@ -27,6 +27,7 @@ const SOURCE_BADGES: Record<string, { label: string; style: string }> = {
   greenhouse: { label: 'Greenhouse', style: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
   lever: { label: 'Lever', style: 'bg-sky-50 text-sky-700 border-sky-200' },
   ashby: { label: 'Ashby', style: 'bg-violet-50 text-violet-700 border-violet-200' },
+  unstop: { label: 'Unstop', style: 'bg-amber-50 text-amber-700 border-amber-200' },
   jooble: { label: 'Jooble API', style: 'bg-blue-50 text-blue-700 border-blue-200' },
 };
 

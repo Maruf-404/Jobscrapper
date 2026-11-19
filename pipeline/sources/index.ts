@@ -1,6 +1,7 @@
 import { RawPost, SourceResult } from '../types';
 import { fetchJooble } from './jooble';
 import { fetchATS } from './ats';
+import { fetchUnstop } from './unstop';
 
 export interface AllSourcesResult {
   posts: RawPost[];
@@ -12,8 +13,9 @@ export async function fetchAllSources(): Promise<AllSourcesResult> {
   console.log('[SOURCES] Starting parallel fetch across all configured sources...');
 
   const sources = [
-    { name: 'jooble', fn: fetchJooble },
     { name: 'ats', fn: fetchATS },
+    { name: 'unstop', fn: fetchUnstop },
+    { name: 'jooble', fn: fetchJooble },
   ];
 
   const results = await Promise.allSettled(
