@@ -12,26 +12,48 @@ export interface PreFilterResult {
   stats: PreFilterStats;
 }
 
-// Indian locations and indicators
-const INDIA_LOCATION_KEYWORDS = [
-  'india',
+// Indian locations, cities, states, and IT hubs
+const INDIA_CITIES_AND_REGIONS = [
   'bengaluru', 'bangalore',
-  'mumbai', 'bombay',
+  'mumbai', 'bombay', 'navi mumbai', 'thane',
   'pune',
-  'delhi', 'new delhi', 'ncr', 'gurgaon', 'gurugram', 'noida', 'faridabad', 'ghaziabad',
-  'hyderabad', 'secunderabad',
-  'chennai', 'madras',
-  'kolkata', 'calcutta',
-  'ahmedabad',
-  'jaipur',
-  'remote', 'wfh', 'work from home', 'anywhere', 'virtual'
+  'delhi', 'new delhi', 'ncr', 'gurgaon', 'gurugram', 'noida', 'greater noida', 'faridabad', 'ghaziabad',
+  'hyderabad', 'secunderabad', 'telangana',
+  'chennai', 'madras', 'tamil nadu',
+  'kolkata', 'calcutta', 'west bengal',
+  'ahmedabad', 'gandhinagar', 'gujarat',
+  'jaipur', 'rajasthan',
+  'kochi', 'cochin', 'kerala', 'trivandrum', 'thiruvananthapuram',
+  'chandigarh', 'mohali', 'panchkula', 'punjab', 'haryana',
+  'indore', 'bhopal', 'madhya pradesh',
+  'coimbatore',
+  'bhubaneswar', 'odisha',
+  'lucknow', 'kanpur', 'uttar pradesh',
+  'nagpur',
+  'vadodara', 'baroda', 'surat',
+  'visakhapatnam', 'vizag', 'andhra pradesh',
+  'mysore', 'mysuru', 'karnataka',
+  'goa',
+  'patna', 'bihar',
+  'dehradun', 'uttarakhand',
+  'guwahati', 'assam'
 ];
 
-// Negative location keywords (overseas locations without India/Remote)
-const NON_INDIA_LOCATIONS = [
-  'united states', 'usa', 'united kingdom', 'uk', 'london', 'germany', 'berlin',
-  'singapore', 'australia', 'sydney', 'canada', 'toronto', 'france', 'paris',
-  'netherlands', 'amsterdam', 'dubai', 'uae', 'ireland', 'dublin', 'japan', 'tokyo'
+// Explicit non-India locations (continents, countries, overseas hubs, US states)
+const NON_INDIA_REGIONS = [
+  'united states', 'usa', 'us', 'u.s.', 'canada', 'mexico', 'brazil',
+  'united kingdom', 'uk', 'u.k.', 'london', 'ireland', 'dublin',
+  'germany', 'berlin', 'munich', 'frankfurt',
+  'france', 'paris', 'netherlands', 'amsterdam', 'spain', 'madrid', 'barcelona',
+  'italy', 'milan', 'rome', 'switzerland', 'zurich', 'geneva', 'sweden', 'stockholm',
+  'poland', 'warsaw', 'krakow', 'serbia', 'belgrade', 'denmark', 'aarhus', 'copenhagen',
+  'austria', 'vienna', 'belgium', 'brussels', 'israel', 'tel aviv',
+  'australia', 'sydney', 'melbourne', 'singapore', 'japan', 'tokyo',
+  'china', 'beijing', 'shanghai', 'hong kong', 'taiwan', 'south korea', 'seoul',
+  'dubai', 'uae', 'united arab emirates', 'saudi arabia', 'qatar', 'egypt', 'south africa',
+  'chicago', 'san francisco', 'austin', 'seattle', 'boston', 'new york', 'mountain view',
+  'bellevue', 'scottsdale', 'lincoln', 'woburn', 'san diego', 'dubuque', 'hudson',
+  'emea', 'latam', 'amer', 'na'
 ];
 
 // Fresher keywords for titles and descriptions
@@ -77,25 +99,52 @@ const FRESHER_KEYWORDS_BODY = [
   /\brecent graduate\b/i,
 ];
 
-// Obvious senior/lead roles that shouldn't be included unless they explicitly say intern
-const SENIOR_ROLE_PATTERN = /\b(senior|sr\.?|lead|principal|staff|director|vp|head of|manager|chief|architect|president|executive)\b/i;
+// Obvious senior/lead roles that shouldn't be included unless they explicitly say intern/trainee
+const SENIOR_ROLE_PATTERN = /\b(senior|sr\.?|lead|principal|staff|director|vp|avp|vice president|head of|chief|architect|president|general manager|engineering manager|senior manager|senior executive|chief executive)\b/i;
 
 // Entry-level job title keywords (no explicit fresher/intern needed)
-const ENTRY_LEVEL_TITLE_PATTERN = /\b(software engineer|developer|analyst|associate engineer|associate analyst|associate consultant|graduate engineer|graduate analyst|engineer trainee|analyst trainee|technology analyst|systems engineer|qa engineer|test engineer|data engineer|cloud engineer|devops engineer|sre|site reliability|frontend|backend|full.?stack|mobile developer|ios developer|android developer|product analyst|business analyst|operations analyst|financial analyst|marketing analyst|research analyst|content writer|technical writer|support engineer|customer success|account executive|business development)\b/i;
+const ENTRY_LEVEL_TITLE_PATTERN = /\b(software engineer|developer|analyst|associate engineer|associate analyst|associate consultant|graduate engineer|graduate analyst|engineer trainee|analyst trainee|technology analyst|systems engineer|qa engineer|test engineer|data engineer|cloud engineer|devops engineer|sre|site reliability|frontend|backend|full.?stack|mobile developer|ios developer|android developer|product analyst|business analyst|operations analyst|financial analyst|marketing analyst|research analyst|content writer|technical writer|support engineer|customer success|account executive|business development|operations executive|sales executive|customer support|support specialist|talent acquisition|recruiter|coordinator)\b/i;
 
 export function isIndiaLocation(locationRaw: string): boolean {
-  if (!locationRaw) return true; // default lenient if location unspecified in India-specific query
-  const loc = locationRaw.toLowerCase();
+  if (!locationRaw) return false;
+  const loc = locationRaw.toLowerCase().trim();
+  if (!loc) return false;
 
-  // If it mentions India or an Indian city or Remote/WFH, it passes
-  const hasIndia = INDIA_LOCATION_KEYWORDS.some((kw) => loc.includes(kw));
-  if (hasIndia) return true;
+  // Check if it explicitly contains a foreign region
+  const hasForeign = NON_INDIA_REGIONS.some((f) => {
+    const regex = new RegExp(`(^|[^a-z0-9])${f}([^a-z0-9]|$)`, 'i');
+    return regex.test(loc);
+  });
 
-  // If it explicitly names a foreign country and does not mention India or Remote, drop it
-  const isForeign = NON_INDIA_LOCATIONS.some((kw) => loc.includes(kw));
-  if (isForeign) return false;
+  // Check if it explicitly contains an Indian city/state/region
+  const hasIndianCity = INDIA_CITIES_AND_REGIONS.some((c) => {
+    const regex = new RegExp(`(^|[^a-z0-9])${c}([^a-z0-9]|$)`, 'i');
+    return regex.test(loc);
+  });
 
-  return true;
+  // Check if it explicitly contains "India" or "IND" or ", IN"
+  const hasIndiaCountry = /(^|[^a-z0-9])(india|ind)\b/i.test(loc) || /,\s*in\b/i.test(loc);
+
+  // If it mentions a foreign location and does NOT mention India / Indian city, drop immediately
+  if (hasForeign && !hasIndianCity && !hasIndiaCountry) {
+    return false;
+  }
+
+  // If it mentions an Indian city or India, it passes
+  if (hasIndianCity || hasIndiaCountry) {
+    return true;
+  }
+
+  // Handle Remote: ONLY accept if generic remote or explicitly worldwide
+  if (loc === 'remote' || loc === 'work from home' || loc === 'wfh') {
+    return true;
+  }
+  if (loc.includes('worldwide') || loc.includes('anywhere') || loc.includes('home based - worldwide')) {
+    return true;
+  }
+
+  // Strict default: if it does NOT match India, return false
+  return false;
 }
 
 export function isFresherPost(title: string, description: string): boolean {
@@ -110,8 +159,8 @@ export function isFresherPost(title: string, description: string): boolean {
     return true;
   }
 
-  // Reject clearly senior roles (unless title said intern above)
-  if (SENIOR_ROLE_PATTERN.test(t) && !/\bintern\b/i.test(t)) {
+  // Reject clearly senior roles (unless title said intern/trainee/fresher above)
+  if (SENIOR_ROLE_PATTERN.test(t) && !/\b(intern|internship|trainee|fresher|apprentice)\b/i.test(t)) {
     return false;
   }
 

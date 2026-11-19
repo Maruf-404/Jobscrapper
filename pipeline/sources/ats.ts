@@ -54,7 +54,7 @@ export async function fetchATS(): Promise<SourceResult> {
           posts.push({
             title: j.title ? j.title.trim() : 'Untitled Role',
             company: company.name,
-            location_raw: j.location?.name || 'India / Remote',
+            location_raw: j.location?.name ? j.location.name.trim() : '',
             description: stripHtml(j.content || ''),
             apply_url: j.absolute_url || '',
             source: 'greenhouse',
@@ -73,7 +73,7 @@ export async function fetchATS(): Promise<SourceResult> {
         const jobs = await res.json();
         if (Array.isArray(jobs)) {
           for (const j of jobs) {
-            const loc = j.categories?.location || (j.categories?.allLocations ? j.categories.allLocations.join(', ') : 'India / Remote');
+            const loc = j.categories?.location || (j.categories?.allLocations ? j.categories.allLocations.join(', ') : '');
             posts.push({
               title: j.text ? j.text.trim() : 'Untitled Role',
               company: company.name,
@@ -97,7 +97,7 @@ export async function fetchATS(): Promise<SourceResult> {
         const data = await res.json();
         const jobs = data.jobs || [];
         for (const j of jobs) {
-          const loc = [j.locationName, ...(j.secondaryLocations || [])].filter(Boolean).join(', ') || 'Remote';
+          const loc = [j.locationName, ...(j.secondaryLocations || [])].filter(Boolean).join(', ');
           posts.push({
             title: j.title ? j.title.trim() : 'Untitled Role',
             company: company.name,

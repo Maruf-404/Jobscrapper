@@ -8,6 +8,7 @@ import { env } from './env';
 import { DedupedPost } from './dedupe';
 import { TaggingOutputItem } from './prompts';
 import { LLMCallRecord } from './tag';
+import { isIndiaLocation } from './prefilter';
 
 export interface DBPost {
   id?: string;
@@ -216,6 +217,47 @@ export class DatabaseService {
       }
       saveLocalStore(store);
       return count;
+    }
+  }
+
+  // Purge any foreign posts that fail strict India location validation
+  public async purgeNonIndiaPosts(): Promise<number> {
+    if (this.supabase) {
+      try {
+        const { data, error } = await this.supabase
+          .from('posts')
+          .select('id, location_raw');
+        if (error || !data) return 0;
+        const nonIndiaIds = data.filter(p => !isIndiaLocation(p.location_raw)).map(p => p.id);
+        if (nonIndiaIds.length === 0) return 0;
+
+        console.log(`[DB] Purging ${nonIndiaIds.length} non-India posts from database...`);
+        const BATCH = 100;
+        let purged = 0;
+        for (let i = 0; i < nonIndiaIds.length; i += BATCH) {
+          const chunk = nonIndiaIds.slice(i, i + BATCH);
+          const { error: delErr } = await this.supabase.from('posts').delete().in('id', chunk);
+          if (!delErr) purged += chunk.length;
+        }
+        return purged;
+      } catch (err: any) {
+        console.warn('[DB] purgeNonIndiaPosts exception:', err?.message || err);
+        return 0;
+      }
+    } else {
+      const store = getLocalStore();
+      let purged = 0;
+      const newPosts: Record<string, DBPost> = {};
+      for (const [k, v] of Object.entries(store.posts)) {
+        if (isIndiaLocation(v.location_raw)) {
+          newPosts[k] = v;
+        } else {
+          purged++;
+        }
+      }
+      store.posts = newPosts;
+      saveLocalStore(store);
+      return purged;
     }
   }
 

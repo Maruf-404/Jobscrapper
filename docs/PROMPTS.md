@@ -64,14 +64,15 @@ Rules:
 - Kolkata (map Kolkata, Calcutta)
 - Ahmedabad
 - Jaipur
-- Remote (if Remote, WFH, Work from Home, Anywhere, or Virtual)
-- Other India (if the location is in India but not one of the canonical cities above)
+- Remote (if Remote, WFH, Work from Home, Anywhere, or Worldwide open to Indian candidates)
+- Other India (ONLY if the location is verified to be inside India, e.g. Lucknow, Kochi, Chandigarh, Indore, Coimbatore, Goa, but not one of the canonical cities above)
 
 3. CLASSIFICATION GUIDELINES:
+- CRITICAL LOCATION REQUIREMENT: This platform is strictly for jobs in India. If a job is explicitly located outside India (e.g. US, UK, Germany, Serbia, Denmark, Mexico, Canada, Australia) and is NOT a worldwide/India-eligible remote position, set "is_fresher" to false and "confidence" to 0.0.
 - Judge role from title FIRST, description SECOND.
 - If multiple cities are mentioned, pick the first one.
 - If "Remote" or "WFH" is listed, pick "Remote".
-- Set "is_fresher" to true if the position is an internship, graduate trainee, apprentice, entry-level, or requires 0-2 years of experience. Set to false if it requires 3+ years experience, senior leadership, or is clearly not entry-level.
+- Set "is_fresher" to true if the position is an internship, graduate trainee, apprentice, entry-level, associate, junior role, or does not demand 3+ years of experience (0-2 years suitable). Set to false only if it explicitly demands 3+ years experience, is senior/lead leadership, or is located outside India.
 - If unsure of the role, use "Other" with a lower confidence score (between 0.1 and 0.5).
 - Output must strictly be a JSON array of objects conforming to the schema.
 ```

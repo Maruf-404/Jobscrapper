@@ -11,8 +11,8 @@ const QUERIES = [
   { keywords: 'engineering intern', location: 'India' },
   { keywords: 'data analyst intern', location: 'India' },
   { keywords: 'product intern', location: 'India' },
-  { keywords: 'fresher developer', location: '' },
-  { keywords: 'internship India', location: '' },
+  { keywords: 'fresher developer', location: 'India' },
+  { keywords: 'internship', location: 'India' },
 ];
 
 function decodeHtmlEntities(str: string): string {

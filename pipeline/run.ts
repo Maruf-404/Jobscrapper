@@ -138,6 +138,11 @@ export async function runPipeline(): Promise<{
   const upsertedCount = await db.upsertPosts(dbPostsToUpsert);
   console.log(`Upserted ${upsertedCount} total post records into database.`);
 
+  const purgedCount = await db.purgeNonIndiaPosts();
+  if (purgedCount > 0) {
+    console.log(`[DB] Successfully purged ${purgedCount} non-India posts from database.`);
+  }
+
   const deactivatedCount = await db.deactivateStalePosts();
   console.log(`Deactivated ${deactivatedCount} posts not seen in the last 7 days.`);
 
