@@ -94,6 +94,36 @@ export async function getHeaderStats(): Promise<{ activeCount: number; lastUpdat
   };
 }
 
+export async function getAllActivePosts(): Promise<PostItem[]> {
+  const supabase = getSupabaseAnonClient();
+
+  if (supabase) {
+    try {
+      const { data, error } = await supabase
+        .from('posts')
+        .select('*')
+        .eq('is_active', true)
+        .eq('is_fresher', true)
+        .is('duplicate_of', null)
+        .order('posted_at', { ascending: false, nullsFirst: false });
+
+      if (!error && data && data.length > 0) {
+        return data as PostItem[];
+      }
+    } catch {
+      // fallback to local database
+    }
+  }
+
+  const store = readLocalDatabase();
+  const items = Object.values(store.posts || {}).filter(
+    (p: any) => p.is_active && p.is_fresher && !p.duplicate_of
+  ) as PostItem[];
+
+  items.sort((a, b) => (b.posted_at || '').localeCompare(a.posted_at || ''));
+  return items;
+}
+
 export async function getFilteredPosts(params: FilterParams): Promise<FilteredPostsResult> {
   const page = Math.max(1, params.page || 1);
   const limit = params.limit || 24;

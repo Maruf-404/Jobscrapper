@@ -7,15 +7,25 @@ interface PaginationProps {
   currentPage: number;
   totalPages: number;
   totalCount: number;
+  onPageChange?: (page: number) => void;
 }
 
-export default function Pagination({ currentPage, totalPages, totalCount }: PaginationProps) {
+export default function Pagination({
+  currentPage,
+  totalPages,
+  totalCount,
+  onPageChange,
+}: PaginationProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
   if (totalPages <= 1) return null;
 
   const navigateToPage = (page: number) => {
+    if (onPageChange) {
+      onPageChange(page);
+      return;
+    }
     const params = new URLSearchParams(searchParams.toString());
     params.set('page', String(page));
     router.push(`/?${params.toString()}`);
