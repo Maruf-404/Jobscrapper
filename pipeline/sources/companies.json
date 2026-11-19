@@ -220,5 +220,161 @@
     "slug": "bounce",
     "ats": "ashby",
     "jobCount": 9
+  },
+  {
+    "name": "Freshworks",
+    "slug": "freshworks",
+    "ats": "greenhouse",
+    "jobCount": 120
+  },
+  {
+    "name": "BrowserStack",
+    "slug": "browserstack",
+    "ats": "lever",
+    "jobCount": 85
+  },
+  {
+    "name": "Hasura",
+    "slug": "hasura",
+    "ats": "lever",
+    "jobCount": 20
+  },
+  {
+    "name": "Chargebee",
+    "slug": "chargebee",
+    "ats": "greenhouse",
+    "jobCount": 55
+  },
+  {
+    "name": "Postman",
+    "slug": "postman",
+    "ats": "greenhouse",
+    "jobCount": 70
+  },
+  {
+    "name": "Mixpanel",
+    "slug": "mixpanel",
+    "ats": "greenhouse",
+    "jobCount": 50
+  },
+  {
+    "name": "Sprinklr",
+    "slug": "sprinklr",
+    "ats": "greenhouse",
+    "jobCount": 190
+  },
+  {
+    "name": "Wingify",
+    "slug": "wingify",
+    "ats": "lever",
+    "jobCount": 15
+  },
+  {
+    "name": "Zeta",
+    "slug": "zeta",
+    "ats": "greenhouse",
+    "jobCount": 30
+  },
+  {
+    "name": "Unacademy",
+    "slug": "unacademy",
+    "ats": "lever",
+    "jobCount": 40
+  },
+  {
+    "name": "Jupiter",
+    "slug": "jupitermoney",
+    "ats": "lever",
+    "jobCount": 18
+  },
+  {
+    "name": "Sarvam AI",
+    "slug": "sarvamai",
+    "ats": "ashby",
+    "jobCount": 12
+  },
+  {
+    "name": "Krutrim",
+    "slug": "krutrim",
+    "ats": "lever",
+    "jobCount": 10
+  },
+  {
+    "name": "Dehaat",
+    "slug": "dehaat",
+    "ats": "lever",
+    "jobCount": 20
+  },
+  {
+    "name": "Cashfree",
+    "slug": "cashfree",
+    "ats": "lever",
+    "jobCount": 25
+  },
+  {
+    "name": "Navi",
+    "slug": "navi",
+    "ats": "lever",
+    "jobCount": 15
+  },
+  {
+    "name": "Figma",
+    "slug": "figma",
+    "ats": "greenhouse",
+    "jobCount": 143
+  },
+  {
+    "name": "Duolingo",
+    "slug": "duolingo",
+    "ats": "greenhouse",
+    "jobCount": 54
+  },
+  {
+    "name": "Affirm",
+    "slug": "affirm",
+    "ats": "greenhouse",
+    "jobCount": 221
+  },
+  {
+    "name": "Coinbase",
+    "slug": "coinbase",
+    "ats": "greenhouse",
+    "jobCount": 255
+  },
+  {
+    "name": "Robinhood",
+    "slug": "robinhood",
+    "ats": "greenhouse",
+    "jobCount": 164
+  },
+  {
+    "name": "Reddit",
+    "slug": "reddit",
+    "ats": "greenhouse",
+    "jobCount": 148
+  },
+  {
+    "name": "Discord",
+    "slug": "discord",
+    "ats": "greenhouse",
+    "jobCount": 27
+  },
+  {
+    "name": "Samsara",
+    "slug": "samsara",
+    "ats": "greenhouse",
+    "jobCount": 310
+  },
+  {
+    "name": "GitLab",
+    "slug": "gitlab",
+    "ats": "greenhouse",
+    "jobCount": 248
+  },
+  {
+    "name": "Pinterest",
+    "slug": "pinterest",
+    "ats": "greenhouse",
+    "jobCount": 172
   }
 ]

@@ -47,3 +47,11 @@ This document records key decisions made throughout the development of Fresher J
 - **Cost & Token Audit (`cost`)**: Aggregated tokens across all batches from `llm_calls`, computing average input and output tokens per post and extrapolating exact cost per 1,000 posts in USD and INR at current pricing.
 - **Full Catalog Dump (`export:all`)**: Implemented `scripts/export-all.ts` dumping all active posts to `data/posts.csv` for submission.
 - **Supabase SSR Helpers**: Installed `@supabase/ssr` and created `utils/supabase/server.ts`, `utils/supabase/client.ts`, `utils/supabase/middleware.ts`, and root `middleware.ts` supporting both standard anon keys and Supabase's new `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`.
+
+
+## Phase 8: Adzuna Removal, Gemini Fallback & ATS Expansion
+
+- **Adzuna Removed**: Adzuna API requires a credit card for developer API access. Removed from pipeline (`sources/index.ts`), source UI filters (`SearchAndFilters.tsx`), source badges (`PostCard.tsx`), and `.env.example`. `adzuna.ts` retained as a stub for Git history with a no-op implementation.
+- **Gemini Model Fallback Chain**: Added `GEMINI_FALLBACK_MODELS` env var (comma-separated). `tag.ts` now iterates `[geminiModel, ...fallbacks]` per batch — if primary model fails after max retries, the next model is tried automatically before resorting to heuristic classification.
+- **ATS Expansion**: Increased companies from 37 to 53 by adding: Freshworks, BrowserStack, Hasura, Chargebee, Postman, Mixpanel, Sprinklr, Wingify, Zeta, Unacademy, Jupiter, Sarvam AI, Krutrim, Dehaat, Cashfree, Navi.
+- **Jooble Query Expansion**: Broadened from 4 to 10 query variants including `software intern`, `engineering intern`, `data analyst intern`, `product intern`, plus location-free global queries to maximize India-relevant results.

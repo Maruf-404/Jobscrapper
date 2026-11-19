@@ -115,94 +115,120 @@ export async function tagPostsWithGemini(posts: TaggingInputPost[]): Promise<Tag
   }
 
   const ai = new GoogleGenAI({ apiKey: env.geminiApiKey });
-  const modelName = env.geminiModel;
+  const modelsToTry = [env.geminiModel, ...env.geminiModelFallbacks];
   const rpmDelay = getRpmDelayMs();
 
   // Process in batches of 10
   for (let i = 0; i < posts.length; i += BATCH_SIZE) {
     const batch = posts.slice(i, i + BATCH_SIZE);
     const userPrompt = buildTaggingPrompt(batch);
+    const batchIndex = Math.floor(i / BATCH_SIZE) + 1;
 
-    let attempts = 0;
-    const maxAttempts = 3;
-    let backoffMs = 2000;
     let success = false;
 
-    while (attempts < maxAttempts && !success) {
-      try {
-        const response = await ai.models.generateContent({
-          model: modelName,
-          contents: `${SYSTEM_PROMPT}\n\n${userPrompt}`,
-          config: {
-            temperature: 0,
-            responseMimeType: 'application/json',
-          },
-        });
+    // Try primary model then each fallback
+    for (const modelName of modelsToTry) {
+      if (success) break;
 
-        const rawText = response.text || '';
-        let items: TaggingOutputItem[] = [];
+      let attempts = 0;
+      const maxAttempts = 2;
+      let backoffMs = 1500;
 
+      while (attempts < maxAttempts && !success) {
         try {
-          items = JSON.parse(rawText);
-        } catch {
-          // Attempt to extract JSON substring if extra markdown fences were added
-          const match = rawText.match(/\[.*\]/s);
-          if (match) {
-            items = JSON.parse(match[0]);
-          }
-        }
-
-        // Token usage tracking
-        const usage = (response as any).usageMetadata || {};
-        const inputTokens = usage.promptTokenCount || Math.round(userPrompt.length / 4);
-        const outputTokens = usage.candidatesTokenCount || Math.round(rawText.length / 4);
-
-        callRecords.push({
-          model: modelName,
-          postsInBatch: batch.length,
-          inputTokens,
-          outputTokens,
-        });
-
-        totalInputTokens += inputTokens;
-        totalOutputTokens += outputTokens;
-
-        for (const item of items) {
-          // Validate role and city against allowed values
-          const role = ROLE_TAXONOMY.includes(item.role as any) ? item.role : 'Other';
-          const city = CANONICAL_CITIES.includes(item.city as any) ? item.city : 'Other India';
-          taggedMap.set(item.id, {
-            id: item.id,
-            role,
-            city,
-            is_fresher: typeof item.is_fresher === 'boolean' ? item.is_fresher : true,
-            confidence: typeof item.confidence === 'number' ? item.confidence : 0.8,
+          console.log(`[LLM Batch ${batchIndex}] Using model: ${modelName}`);
+          const response = await ai.models.generateContent({
+            model: modelName,
+            contents: `${SYSTEM_PROMPT}\n\n${userPrompt}`,
+            config: {
+              temperature: 0,
+              responseMimeType: 'application/json',
+            },
           });
-        }
 
-        // Tag any missing items in batch with heuristic fallback
-        for (const p of batch) {
-          if (!taggedMap.has(p.id)) {
-            taggedMap.set(p.id, heuristicClassify(p));
+          const rawText = response.text || '';
+          let items: TaggingOutputItem[] = [];
+
+          try {
+            items = JSON.parse(rawText);
+          } catch {
+            // Attempt to extract JSON substring if extra markdown fences were added
+            const match = rawText.match(/\[.*\]/s);
+            if (match) {
+              items = JSON.parse(match[0]);
+            }
           }
-        }
 
-        success = true;
-      } catch (err: any) {
-        attempts++;
-        console.warn(`[LLM Batch ${Math.floor(i / BATCH_SIZE) + 1}] Attempt ${attempts} failed:`, err?.message || err);
-        if (err?.status === 429 || String(err).includes('429') || String(err).includes('quota')) {
-          console.warn(`Rate limit reached, backing off for ${backoffMs}ms...`);
-          await new Promise((r) => setTimeout(r, backoffMs));
-          backoffMs *= 2;
-        } else {
-          await new Promise((r) => setTimeout(r, 1000));
+          // Token usage tracking
+          const usage = (response as any).usageMetadata || {};
+          const inputTokens = usage.promptTokenCount || Math.round(userPrompt.length / 4);
+          const outputTokens = usage.candidatesTokenCount || Math.round(rawText.length / 4);
+
+          callRecords.push({
+            model: modelName,
+            postsInBatch: batch.length,
+            inputTokens,
+            outputTokens,
+          });
+
+          totalInputTokens += inputTokens;
+          totalOutputTokens += outputTokens;
+
+          for (const item of items) {
+            // Validate role and city against allowed values
+            const role = ROLE_TAXONOMY.includes(item.role as any) ? item.role : 'Other';
+            const city = CANONICAL_CITIES.includes(item.city as any) ? item.city : 'Other India';
+            taggedMap.set(item.id, {
+              id: item.id,
+              role,
+              city,
+              is_fresher: typeof item.is_fresher === 'boolean' ? item.is_fresher : true,
+              confidence: typeof item.confidence === 'number' ? item.confidence : 0.8,
+            });
+          }
+
+          // Tag any missing items in batch with heuristic fallback
+          for (const p of batch) {
+            if (!taggedMap.has(p.id)) {
+              taggedMap.set(p.id, heuristicClassify(p));
+            }
+          }
+
+          if (modelsToTry[0] !== modelName) {
+            const idx = modelsToTry.indexOf(modelName);
+            if (idx > 0) {
+              modelsToTry.splice(idx, 1);
+              modelsToTry.unshift(modelName);
+              console.log(`[LLM TAGGER] Promoted working model ${modelName} to primary.`);
+            }
+          }
+
+          success = true;
+        } catch (err: any) {
+          attempts++;
+          const errStr = String(err?.message || err);
+          const is429 = err?.status === 429 || errStr.includes('429') || errStr.includes('quota');
+          const is503 = err?.status === 503 || errStr.includes('503') || errStr.includes('high demand') || errStr.includes('UNAVAILABLE');
+          
+          console.warn(`[LLM Batch ${batchIndex}] Model ${modelName} attempt ${attempts} failed:`, errStr);
+          if (is503) {
+            console.warn(`[LLM Batch ${batchIndex}] Model ${modelName} experiencing high demand (503). Switching to fallback immediately...`);
+            break; // Skip remaining attempts for this model, immediately try next model in chain
+          } else if (is429) {
+            console.warn(`Rate limit on ${modelName}, backing off for ${backoffMs}ms...`);
+            await new Promise((r) => setTimeout(r, backoffMs));
+            backoffMs *= 2;
+          } else if (attempts >= maxAttempts) {
+            console.warn(`[LLM Batch ${batchIndex}] Exhausted retries on ${modelName}. Trying next model...`);
+          } else {
+            await new Promise((r) => setTimeout(r, 1000));
+          }
         }
       }
     }
 
     if (!success) {
-      console.error(`[LLM Batch ${Math.floor(i / BATCH_SIZE) + 1}] Failed after ${maxAttempts} attempts. Using fallback classification.`);
+      console.error(`[LLM Batch ${Math.floor(i / BATCH_SIZE) + 1}] All models failed. Using heuristic fallback classification.`);
       for (const p of batch) {
         taggedMap.set(p.id, heuristicClassify(p));
       }

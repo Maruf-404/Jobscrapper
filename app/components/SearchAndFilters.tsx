@@ -9,7 +9,6 @@ const SOURCES = [
   { id: 'greenhouse', name: 'Greenhouse' },
   { id: 'lever', name: 'Lever' },
   { id: 'ashby', name: 'Ashby' },
-  { id: 'adzuna', name: 'Adzuna' },
   { id: 'jooble', name: 'Jooble' },
 ];
 

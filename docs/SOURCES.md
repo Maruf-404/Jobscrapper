@@ -8,17 +8,7 @@ This document explains the data acquisition architecture of Fresher Jobs India, 
 
 All data collected by Fresher Jobs India comes exclusively from documented public APIs and openly exposed ATS (Applicant Tracking System) REST endpoints provided by employers for the purpose of job discovery.
 
-### A. Adzuna Job Search API
-- **Endpoint**: `https://api.adzuna.com/v1/api/jobs/in/search`
-- **Why ToS-Safe**: Ingested via Adzuna's official registered Developer API program. Adzuna explicitly permits developers and aggregators to query and display their job indexes under developer terms of use.
-- **Filtering**: Targeted query parameters (`country: in`, keywords: `fresher`, `intern`, `graduate trainee`, `entry level`).
-
-### B. Jooble Job Search API
-- **Endpoint**: `https://jooble.org/api/`
-- **Why ToS-Safe**: Queried via Jooble's official partner REST API using a provisioned API key. Jooble's terms expressly authorize programmatic access through this partner gateway.
-- **Filtering**: JSON queries targeting India (`location: "India"`) and fresher keywords.
-
-### C. Public ATS JSON Endpoints (Greenhouse, Lever, Ashby)
+### B. Public ATS JSON Endpoints (Greenhouse, Lever, Ashby)
 Modern tech startups and corporations publish unauthenticated public JSON endpoints for their career boards to power external career pages, widgets, and job aggregators:
 1. **Greenhouse Boards API**: `https://boards-api.greenhouse.io/v1/boards/{company}/jobs?content=true`
 2. **Lever Postings API**: `https://api.lever.co/v0/postings/{company}?mode=json`
@@ -40,6 +30,7 @@ In strict adherence to PRD Section 4 ("Do NOT scrape LinkedIn, Naukri, Indeed or
 
 | Source | Reason Skipped |
 | :--- | :--- |
+| **Adzuna** | Adzuna's Developer API requires a valid credit card for registration, even for free-tier usage. Removed in Phase 8 to maintain a zero-cost setup. |
 | **LinkedIn** | LinkedIn's User Agreement (Section 8.2) strictly forbids automated scraping, crawling, or accessing services without express written permission. It employs active anti-scraping countermeasures and IP rate gates. |
 | **Naukri** | Info Edge's Terms of Use explicitly prohibit data extraction, web crawling, and automated harvesting of job candidate and job vacancy data. |
 | **Indeed** | Indeed's Terms of Service specifically prohibit the use of spiders, scrapers, or other automated tools to extract listings. Indeed frequently blocks unauthenticated automated agents. |

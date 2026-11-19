@@ -83,10 +83,13 @@ export async function runPipeline(): Promise<{
     }
   }
 
-  // Convert to DB records
+  // Convert to DB records with deduplication by dedupe_key so Postgres batch ON CONFLICT doesn't collide
+  const seenDedupeKeys = new Set<string>();
   const dbPostsToUpsert: DBPost[] = [];
 
   for (const post of uniquePosts) {
+    if (seenDedupeKeys.has(post.dedupe_key)) continue;
+    seenDedupeKeys.add(post.dedupe_key);
     const tag = finalTags.get(post.dedupe_key);
     dbPostsToUpsert.push({
       dedupe_key: post.dedupe_key,
@@ -107,8 +110,10 @@ export async function runPipeline(): Promise<{
     });
   }
 
-  // Also include duplicate posts as inactive / duplicate_of reference
+  // Also include fuzzy duplicate posts as inactive (skip exact duplicates that share dedupe_key)
   for (const dup of duplicatePosts) {
+    if (seenDedupeKeys.has(dup.dedupe_key)) continue;
+    seenDedupeKeys.add(dup.dedupe_key);
     dbPostsToUpsert.push({
       dedupe_key: dup.dedupe_key,
       title: dup.title,
@@ -123,7 +128,7 @@ export async function runPipeline(): Promise<{
       city: dup.canonical_city,
       is_fresher: false,
       tag_confidence: null,
-      duplicate_of: dup.duplicate_of || null,
+      duplicate_of: null,
       is_active: false,
     });
   }
@@ -191,8 +196,12 @@ export async function runPipeline(): Promise<{
 
 // CLI Execution entrypoint
 if (require.main === module || process.argv[1]?.includes('run.ts')) {
-  runPipeline().catch((err) => {
-    console.error('[FATAL] Pipeline failed:', err);
-    process.exit(1);
-  });
+  runPipeline()
+    .then(() => {
+      process.exit(0);
+    })
+    .catch((err) => {
+      console.error('[FATAL] Pipeline failed:', err);
+      process.exit(1);
+    });
 }

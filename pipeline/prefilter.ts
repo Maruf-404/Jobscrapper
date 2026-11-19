@@ -78,7 +78,10 @@ const FRESHER_KEYWORDS_BODY = [
 ];
 
 // Obvious senior/lead roles that shouldn't be included unless they explicitly say intern
-const SENIOR_ROLE_PATTERN = /\b(senior|sr\.?|lead|principal|staff|director|vp|head of|manager|chief|architect)\b/i;
+const SENIOR_ROLE_PATTERN = /\b(senior|sr\.?|lead|principal|staff|director|vp|head of|manager|chief|architect|president|executive)\b/i;
+
+// Entry-level job title keywords (no explicit fresher/intern needed)
+const ENTRY_LEVEL_TITLE_PATTERN = /\b(software engineer|developer|analyst|associate engineer|associate analyst|associate consultant|graduate engineer|graduate analyst|engineer trainee|analyst trainee|technology analyst|systems engineer|qa engineer|test engineer|data engineer|cloud engineer|devops engineer|sre|site reliability|frontend|backend|full.?stack|mobile developer|ios developer|android developer|product analyst|business analyst|operations analyst|financial analyst|marketing analyst|research analyst|content writer|technical writer|support engineer|customer success|account executive|business development)\b/i;
 
 export function isIndiaLocation(locationRaw: string): boolean {
   if (!locationRaw) return true; // default lenient if location unspecified in India-specific query
@@ -120,6 +123,12 @@ export function isFresherPost(title: string, description: string): boolean {
   const descSnippet = description.slice(0, 3000);
   const descMatch = FRESHER_KEYWORDS_BODY.some((regex) => regex.test(descSnippet));
   if (descMatch) return true;
+
+  // Heuristic: common entry-level job titles with no seniority flags and India location
+  // These are roles typically open to freshers (0-2 yrs) even without explicit "fresher" in JD
+  if (ENTRY_LEVEL_TITLE_PATTERN.test(t)) {
+    return true;
+  }
 
   return false;
 }

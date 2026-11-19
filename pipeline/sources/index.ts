@@ -1,5 +1,4 @@
 import { RawPost, SourceResult } from '../types';
-import { fetchAdzuna } from './adzuna';
 import { fetchJooble } from './jooble';
 import { fetchATS } from './ats';
 
@@ -13,7 +12,6 @@ export async function fetchAllSources(): Promise<AllSourcesResult> {
   console.log('[SOURCES] Starting parallel fetch across all configured sources...');
 
   const sources = [
-    { name: 'adzuna', fn: fetchAdzuna },
     { name: 'jooble', fn: fetchJooble },
     { name: 'ats', fn: fetchATS },
   ];
