@@ -3,7 +3,13 @@
 
 import fs from 'fs';
 import path from 'path';
+import WebSocket from 'ws';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
+
+// Polyfill native WebSocket for Node environments < 22
+if (typeof (globalThis as any).WebSocket === 'undefined') {
+  (globalThis as any).WebSocket = WebSocket;
+}
 import { env } from './env';
 import { DedupedPost } from './dedupe';
 import { TaggingOutputItem } from './prompts';
