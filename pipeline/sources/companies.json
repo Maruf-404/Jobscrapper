@@ -526,5 +526,29 @@
     "slug": "jumio",
     "ats": "greenhouse",
     "jobCount": 17
+  },
+  {
+    "name": "Datadog",
+    "slug": "datadog",
+    "ats": "greenhouse",
+    "jobCount": 450
+  },
+  {
+    "name": "LogicMonitor",
+    "slug": "logicmonitor",
+    "ats": "greenhouse",
+    "jobCount": 60
+  },
+  {
+    "name": "SolarWinds",
+    "slug": "solarwinds",
+    "ats": "greenhouse",
+    "jobCount": 110
+  },
+  {
+    "name": "Yugabyte",
+    "slug": "yugabyte",
+    "ats": "greenhouse",
+    "jobCount": 35
   }
 ]

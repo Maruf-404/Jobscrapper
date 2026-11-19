@@ -53,6 +53,8 @@ const NON_INDIA_REGIONS = [
   'dubai', 'uae', 'united arab emirates', 'saudi arabia', 'qatar', 'egypt', 'south africa',
   'chicago', 'san francisco', 'austin', 'seattle', 'boston', 'new york', 'mountain view',
   'bellevue', 'scottsdale', 'lincoln', 'woburn', 'san diego', 'dubuque', 'hudson',
+  'ukraine', 'russia', 'vietnam', 'philippines', 'indonesia', 'malaysia', 'thailand',
+  'pakistan', 'bangladesh', 'nepal', 'sri lanka',
   'emea', 'latam', 'amer', 'na'
 ];
 
@@ -136,10 +138,10 @@ export function isIndiaLocation(locationRaw: string): boolean {
   }
 
   // Handle Remote: ONLY accept if generic remote or explicitly worldwide
-  if (loc === 'remote' || loc === 'work from home' || loc === 'wfh') {
+  if (loc === 'remote' || loc === 'work from home' || loc === 'wfh' || loc === 'remote - anywhere' || loc === 'anywhere') {
     return true;
   }
-  if (loc.includes('worldwide') || loc.includes('anywhere') || loc.includes('home based - worldwide')) {
+  if (loc.includes('worldwide') || loc.includes('home based - worldwide')) {
     return true;
   }
 
