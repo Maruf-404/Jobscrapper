@@ -8,7 +8,7 @@ import { env } from './env';
 import { DedupedPost } from './dedupe';
 import { TaggingOutputItem } from './prompts';
 import { LLMCallRecord } from './tag';
-import { isIndiaLocation } from './prefilter';
+import { isIndiaLocation, isFresherPost } from './prefilter';
 
 export interface DBPost {
   id?: string;
@@ -253,6 +253,50 @@ export class DatabaseService {
           newPosts[k] = v;
         } else {
           purged++;
+        }
+      }
+      store.posts = newPosts;
+      saveLocalStore(store);
+      return purged;
+    }
+  }
+
+  // Purge any posts that fail strict fresher/internship qualification
+  public async purgeNonFresherPosts(): Promise<number> {
+    if (this.supabase) {
+      try {
+        const { data, error } = await this.supabase
+          .from('posts')
+          .select('id, title, description')
+          .eq('is_fresher', true);
+        if (error || !data) return 0;
+        const nonFresherIds = data
+          .filter((p) => !isFresherPost(p.title, p.description || ''))
+          .map((p) => p.id);
+        if (nonFresherIds.length === 0) return 0;
+
+        console.log(`[DB] Purging ${nonFresherIds.length} non-fresher posts from database...`);
+        const BATCH = 100;
+        let purged = 0;
+        for (let i = 0; i < nonFresherIds.length; i += BATCH) {
+          const chunk = nonFresherIds.slice(i, i + BATCH);
+          const { error: delErr } = await this.supabase.from('posts').delete().in('id', chunk);
+          if (!delErr) purged += chunk.length;
+        }
+        return purged;
+      } catch (err: any) {
+        console.warn('[DB] purgeNonFresherPosts exception:', err?.message || err);
+        return 0;
+      }
+    } else {
+      const store = getLocalStore();
+      let purged = 0;
+      const newPosts: Record<string, DBPost> = {};
+      for (const [key, p] of Object.entries(store.posts)) {
+        if (p.is_fresher && !isFresherPost(p.title, p.description || '')) {
+          purged++;
+        } else {
+          newPosts[key] = p;
         }
       }
       store.posts = newPosts;

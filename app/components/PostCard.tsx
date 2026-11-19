@@ -113,14 +113,15 @@ export default function PostCard({ post, highlightQuery }: PostCardProps) {
 
       {/* Card Action */}
       <div className="mt-5 pt-3 border-t border-slate-100 flex items-center justify-between">
-        <div className="text-[11px] text-slate-400">
-          {post.tag_confidence ? (
-            <span className="inline-flex items-center space-x-0.5">
-              <Sparkles className="w-3 h-3 text-amber-500 mr-0.5" />
-              <span>{Math.round(post.tag_confidence * 100)}% Match</span>
+        <div>
+          {/\b(intern|internship|trainee|apprentice)\b/i.test(post.title) ? (
+            <span className="inline-flex items-center text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+              Internship
             </span>
           ) : (
-            <span>Verified Fresher</span>
+            <span className="inline-flex items-center text-[11px] font-semibold text-indigo-700 bg-indigo-50 px-2.5 py-0.5 rounded-full border border-indigo-200">
+              Verified Fresher
+            </span>
           )}
         </div>
 

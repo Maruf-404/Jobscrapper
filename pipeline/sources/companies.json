@@ -550,5 +550,125 @@
     "slug": "yugabyte",
     "ats": "greenhouse",
     "jobCount": 35
+  },
+  {
+    "name": "Composio",
+    "slug": "composio",
+    "ats": "ashby",
+    "jobCount": 30
+  },
+  {
+    "name": "Realm Alliance",
+    "slug": "realmalliance",
+    "ats": "ashby",
+    "jobCount": 8
+  },
+  {
+    "name": "Shield",
+    "slug": "shield",
+    "ats": "ashby",
+    "jobCount": 664
+  },
+  {
+    "name": "Julius",
+    "slug": "julius",
+    "ats": "ashby",
+    "jobCount": 6
+  },
+  {
+    "name": "Observe.AI",
+    "slug": "observeai",
+    "ats": "greenhouse",
+    "jobCount": 10
+  },
+  {
+    "name": "Airtable",
+    "slug": "airtable",
+    "ats": "greenhouse",
+    "jobCount": 11
+  },
+  {
+    "name": "Cursor",
+    "slug": "cursor",
+    "ats": "ashby",
+    "jobCount": 92
+  },
+  {
+    "name": "Replit",
+    "slug": "replit",
+    "ats": "ashby",
+    "jobCount": 36
+  },
+  {
+    "name": "Lovable",
+    "slug": "lovable",
+    "ats": "ashby",
+    "jobCount": 80
+  },
+  {
+    "name": "Cognition",
+    "slug": "cognition",
+    "ats": "ashby",
+    "jobCount": 109
+  },
+  {
+    "name": "Midjourney",
+    "slug": "midjourney",
+    "ats": "ashby",
+    "jobCount": 16
+  },
+  {
+    "name": "LlamaIndex",
+    "slug": "llamaindex",
+    "ats": "ashby",
+    "jobCount": 4
+  },
+  {
+    "name": "LangChain",
+    "slug": "langchain",
+    "ats": "ashby",
+    "jobCount": 102
+  },
+  {
+    "name": "Deepgram",
+    "slug": "deepgram",
+    "ats": "ashby",
+    "jobCount": 58
+  },
+  {
+    "name": "Anthropic",
+    "slug": "anthropic",
+    "ats": "greenhouse",
+    "jobCount": 639
+  },
+  {
+    "name": "Scale AI",
+    "slug": "scaleai",
+    "ats": "greenhouse",
+    "jobCount": 167
+  },
+  {
+    "name": "Pure Storage",
+    "slug": "purestorage",
+    "ats": "greenhouse",
+    "jobCount": 394
+  },
+  {
+    "name": "Chime",
+    "slug": "chime",
+    "ats": "greenhouse",
+    "jobCount": 77
+  },
+  {
+    "name": "Brex",
+    "slug": "brex",
+    "ats": "greenhouse",
+    "jobCount": 260
+  },
+  {
+    "name": "SoFi",
+    "slug": "sofi",
+    "ats": "greenhouse",
+    "jobCount": 53
   }
 ]

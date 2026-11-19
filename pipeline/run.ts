@@ -61,7 +61,7 @@ export async function runPipeline(): Promise<{
         title: post.title,
         company: post.company,
         location_raw: post.location_raw,
-        description_snippet: post.description.slice(0, 1000),
+        description_snippet: post.description.slice(0, 3500),
       });
     }
   }
@@ -141,6 +141,11 @@ export async function runPipeline(): Promise<{
   const purgedCount = await db.purgeNonIndiaPosts();
   if (purgedCount > 0) {
     console.log(`[DB] Successfully purged ${purgedCount} non-India posts from database.`);
+  }
+
+  const purgedFresherCount = await db.purgeNonFresherPosts();
+  if (purgedFresherCount > 0) {
+    console.log(`[DB] Successfully purged ${purgedFresherCount} non-fresher posts from database.`);
   }
 
   const deactivatedCount = await db.deactivateStalePosts();

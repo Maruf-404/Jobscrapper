@@ -101,11 +101,11 @@ const FRESHER_KEYWORDS_BODY = [
   /\brecent graduate\b/i,
 ];
 
-// Obvious senior/lead roles that shouldn't be included unless they explicitly say intern/trainee
-const SENIOR_ROLE_PATTERN = /\b(senior|sr\.?|lead|principal|staff|director|vp|avp|vice president|head of|chief|architect|president|general manager|engineering manager|senior manager|senior executive|chief executive)\b/i;
+// Strict exclusion for titles with level numbers (II, III, IV, 2, 3) or senior/mid-level ranks
+const STRICT_EXCLUDE_TITLE = /\b(senior|sr\.?|lead|principal|staff|director|vp|avp|vice president|head of|chief|architect|president|general manager|engineering manager|senior manager|senior executive|\bii\b|\biii\b|\biv\b|\b2\b|\b3\b|\b4\b|mid-level|intermediate)\b/i;
 
-// Entry-level job title keywords (no explicit fresher/intern needed)
-const ENTRY_LEVEL_TITLE_PATTERN = /\b(software engineer|developer|analyst|associate engineer|associate analyst|associate consultant|graduate engineer|graduate analyst|engineer trainee|analyst trainee|technology analyst|systems engineer|qa engineer|test engineer|data engineer|cloud engineer|devops engineer|sre|site reliability|frontend|backend|full.?stack|mobile developer|ios developer|android developer|product analyst|business analyst|operations analyst|financial analyst|marketing analyst|research analyst|content writer|technical writer|support engineer|customer success|account executive|business development|operations executive|sales executive|customer support|support specialist|talent acquisition|recruiter|coordinator)\b/i;
+// Rejection pattern for descriptions requiring 2+ or more years of experience
+const PRIOR_EXPERIENCE_PATTERN = /\b([2-9]|\d{2})\+?\s*(years?|yrs?|yr)\b|\b([2-9]|\d{2})\s*(?:to|-)\s*\d+\s*(?:years?|yrs?|yr)\b|\bminimum\s*([2-9]|\d{2})\s*years?\b|\bat\s*least\s*([2-9]|\d{2})\s*years?\b/i;
 
 export function isIndiaLocation(locationRaw: string): boolean {
   if (!locationRaw) return false;
@@ -151,35 +151,43 @@ export function isIndiaLocation(locationRaw: string): boolean {
 
 export function isFresherPost(title: string, description: string): boolean {
   const t = title.toLowerCase();
+  const d = description || '';
 
-  // High confidence positive: title explicitly mentions intern, fresher, trainee, apprentice, new grad
+  // 1. Immediate disqualification: Title has senior/lead or Level 2/3/II/III markers
+  // (unless it's explicitly an internship or apprentice role)
   if (
-    /\b(intern|internship|fresher|freshers|trainee|apprentice|new grad|new graduate)\b/i.test(
+    STRICT_EXCLUDE_TITLE.test(t) &&
+    !/\b(intern|internship|trainee|apprentice)\b/i.test(t)
+  ) {
+    return false;
+  }
+
+  // 2. Immediate disqualification: Description demands 2+, 3+, 4+, 5+ years of experience
+  // (unless the title explicitly says intern, trainee, or apprentice)
+  if (
+    PRIOR_EXPERIENCE_PATTERN.test(d) &&
+    !/\b(intern|internship|trainee|apprentice)\b/i.test(t)
+  ) {
+    return false;
+  }
+
+  // 3. High confidence positive: Title explicitly mentions intern, fresher, trainee, apprentice, new grad
+  if (
+    /\b(intern|internship|fresher|freshers|trainee|apprentice|new grad|new graduate|campus|co-op)\b/i.test(
       t
     )
   ) {
     return true;
   }
 
-  // Reject clearly senior roles (unless title said intern/trainee/fresher above)
-  if (SENIOR_ROLE_PATTERN.test(t) && !/\b(intern|internship|trainee|fresher|apprentice)\b/i.test(t)) {
-    return false;
-  }
-
-  // Check title for junior/entry/0-1/associate
+  // 4. Positive title match for junior/entry/associate/0-1/0-2
   const titleMatch = FRESHER_KEYWORDS_TITLE.some((regex) => regex.test(t));
   if (titleMatch) return true;
 
-  // Check description snippet for explicit 0-1, 0-2 yrs or fresher keywords
-  const descSnippet = description.slice(0, 3000);
+  // 5. Positive description match for explicit 0-1, 0-2 yrs, freshers can apply, college graduate
+  const descSnippet = d.slice(0, 4000);
   const descMatch = FRESHER_KEYWORDS_BODY.some((regex) => regex.test(descSnippet));
   if (descMatch) return true;
-
-  // Heuristic: common entry-level job titles with no seniority flags and India location
-  // These are roles typically open to freshers (0-2 yrs) even without explicit "fresher" in JD
-  if (ENTRY_LEVEL_TITLE_PATTERN.test(t)) {
-    return true;
-  }
 
   return false;
 }

@@ -85,10 +85,12 @@ Rules:
 
 3. CLASSIFICATION GUIDELINES:
 - CRITICAL LOCATION REQUIREMENT: This platform is strictly for jobs in India. If a job is explicitly located outside India (e.g. US, UK, Germany, Serbia, Denmark, Mexico, Canada, Australia) and is NOT a worldwide/India-eligible remote position, set "is_fresher" to false and "confidence" to 0.0.
+- CRITICAL STRICT FRESHER REQUIREMENT: This platform is strictly for genuine freshers, college graduates, and interns (0-1 years experience, up to 2 years for early-career roles).
+  * You MUST set "is_fresher" to false if the job demands 2+, 3+, 4+, 5+ years experience, is Level II/III/IV/2/3, or is a mid/senior-level role.
+  * You MUST set "is_fresher" to true ONLY if it is an internship, apprenticeship, trainee, campus, new grad, junior, or explicitly entry-level position (0-1 years, 0-2 years, or no prior experience required).
 - Judge role from title FIRST, description SECOND.
 - If multiple cities are mentioned, pick the first one.
 - If "Remote" or "WFH" is listed, pick "Remote".
-- Set "is_fresher" to true if the position is an internship, graduate trainee, apprentice, entry-level, associate, junior role, or does not demand 3+ years of experience (0-2 years suitable). Set to false only if it explicitly demands 3+ years experience, is senior/lead leadership, or is located outside India.
 - If unsure of the role, use "Other" with a lower confidence score (between 0.1 and 0.5).
 - Output must strictly be a JSON array of objects conforming to the schema.`;
 
