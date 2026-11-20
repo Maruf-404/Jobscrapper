@@ -11,7 +11,8 @@
     "export:sample": "tsx scripts/export-sample.ts",
     "score": "tsx scripts/score.ts",
     "cost": "tsx scripts/cost.ts",
-    "export:all": "tsx scripts/export-all.ts"
+    "export:all": "tsx scripts/export-all.ts",
+    "export:submission": "tsx scripts/export-submission.ts"
   },
   "dependencies": {
     "@google/genai": "^3.6.0",
@@ -32,6 +33,7 @@
     "@types/react-dom": "^18.3.1",
     "@types/ws": "^8.18.2",
     "autoprefixer": "^10.4.20",
+    "exceljs": "^4.4.0",
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.14",
     "tsx": "^4.19.2",

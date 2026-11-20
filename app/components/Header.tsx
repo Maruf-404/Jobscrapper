@@ -29,9 +29,6 @@ export default function Header({ activeCount, lastUpdatedIST }: HeaderProps) {
                 <span className="text-lg font-bold tracking-tight text-[#101828] group-hover:text-[#0D81FC] transition-colors">
                   Fresher Jobs India
                 </span>
-                <span className="hidden sm:inline-block ml-2 px-2 py-0.5 text-xs font-medium rounded-full bg-[#ECFDF3] text-[#027A48] border border-[#ABEFC6]">
-                  Verified ToS-Safe
-                </span>
               </div>
             </Link>
           </div>

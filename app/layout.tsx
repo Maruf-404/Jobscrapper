@@ -14,7 +14,7 @@ const notoSans = Noto_Sans({
 export const metadata: Metadata = {
   title: 'Fresher Jobs India | 200+ Verified Entry-Level & Internship Tech Roles',
   description:
-    'Searchable and filterable fresher and internship job postings in India from ToS-safe public company ATS endpoints and job APIs, tagged using Gemini Flash.',
+    'Searchable and filterable fresher and internship job postings in India from public company ATS endpoints and job APIs, tagged using Gemini Flash.',
 };
 
 export default async function RootLayout({
@@ -34,7 +34,7 @@ export default async function RootLayout({
         <footer className="border-t border-[#EAECF0] bg-white py-6 text-center text-xs text-[#667085]">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3">
             <p>© {new Date().getFullYear()} Fresher Jobs India. All posts sourced from public ATS and authorized job APIs.</p>
-            <p className="text-[#98A2B3]">Strictly ToS-safe • No unauthorized scraping • Automated daily via GitHub Actions</p>
+            <p className="text-[#98A2B3]">Automated daily via GitHub Actions</p>
           </div>
         </footer>
       </body>
