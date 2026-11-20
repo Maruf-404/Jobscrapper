@@ -16,6 +16,7 @@ import {
   Eye,
   EyeOff,
   Check,
+  ExternalLink,
 } from 'lucide-react';
 import { ROLE_TAXONOMY, CANONICAL_CITIES } from '@/pipeline/prompts';
 
@@ -25,6 +26,7 @@ interface ReviewPost {
   company: string;
   location_raw: string;
   description_snippet: string;
+  apply_url?: string;
   llm_role: string;
   llm_city: string;
   true_role?: string;
@@ -401,7 +403,20 @@ export default function ReviewPage() {
                 <div key={m.id} className="p-4 rounded-xl border border-[#EAECF0] bg-[#F9FAFB]">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                     <h3 className="text-sm font-bold text-[#101828]">{m.title}</h3>
-                    <span className="text-xs text-[#667085]">{m.company}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-[#667085]">{m.company}</span>
+                      {m.apply_url && (
+                        <a
+                          href={m.apply_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-[11px] text-[#0D81FC] hover:underline"
+                        >
+                          <span>Posting</span>
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
+                      )}
+                    </div>
                   </div>
                   <p className="text-xs text-[#667085] mt-1">{m.location_raw}</p>
 
@@ -486,7 +501,21 @@ export default function ReviewPage() {
         <div className="bg-white rounded-2xl border border-[#EAECF0] p-5 sm:p-6 shadow-xs space-y-5">
           {/* Post Information */}
           <div>
-            <span className="text-xs font-bold uppercase tracking-wider text-[#98A2B3]">Candidate Position</span>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <span className="text-xs font-bold uppercase tracking-wider text-[#98A2B3]">Candidate Position</span>
+              {currentPost.apply_url && (
+                <a
+                  href={currentPost.apply_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-[#0D81FC] bg-[#EFF7FF] hover:bg-[#D1E9FF] border border-[#B2D7FE] transition-colors shadow-2xs w-fit"
+                  title="Open original job posting on official employer site in a new tab"
+                >
+                  <span>View Original Job Posting</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </a>
+              )}
+            </div>
             <h2 className="text-xl font-bold text-[#101828] mt-1">{currentPost.title}</h2>
 
             <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-[#475467] mt-2">

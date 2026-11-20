@@ -98,27 +98,42 @@ export async function GET(req: NextRequest) {
       }));
     }
 
-    // Query hand_check table to retrieve any answers already recorded
+    // Query Supabase for apply_url and hand_check recorded answers
     const supabase = getSupabaseServiceClient();
     if (supabase) {
+      const postIds = posts.map((p) => p.id).filter(Boolean);
+
+      // 1. Fetch real apply_url from posts table
+      const { data: dbPosts } = await supabase
+        .from('posts')
+        .select('id, apply_url')
+        .in('id', postIds);
+
+      const urlMap = new Map((dbPosts || []).map((dp: any) => [dp.id, dp.apply_url]));
+
+      // 2. Query hand_check table to retrieve any answers already recorded
       const { data: checks } = await supabase.from('hand_check').select('*');
-      if (checks && checks.length > 0) {
-        const checkMap = new Map(checks.map((c: any) => [c.post_id, c]));
-        posts = posts.map((p) => {
-          const recorded = checkMap.get(p.id);
-          if (recorded) {
-            return {
-              ...p,
-              true_role: recorded.true_role,
-              true_city: recorded.true_city,
-              role_correct: recorded.role_correct,
-              city_correct: recorded.city_correct,
-              is_reviewed: true,
-            };
-          }
-          return p;
-        });
-      }
+      const checkMap = new Map((checks || []).map((c: any) => [c.post_id, c]));
+
+      posts = posts.map((p) => {
+        const apply_url = urlMap.get(p.id) || p.apply_url || '';
+        const recorded = checkMap.get(p.id);
+        if (recorded) {
+          return {
+            ...p,
+            apply_url,
+            true_role: recorded.true_role,
+            true_city: recorded.true_city,
+            role_correct: recorded.role_correct,
+            city_correct: recorded.city_correct,
+            is_reviewed: true,
+          };
+        }
+        return {
+          ...p,
+          apply_url,
+        };
+      });
     }
 
     return NextResponse.json({ posts });
