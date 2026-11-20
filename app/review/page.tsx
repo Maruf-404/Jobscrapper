@@ -16,6 +16,7 @@ import {
   Eye,
   EyeOff,
   Check,
+  X,
   ExternalLink,
 } from 'lucide-react';
 import { ROLE_TAXONOMY, CANONICAL_CITIES } from '@/pipeline/prompts';
@@ -51,6 +52,8 @@ export default function ReviewPage() {
   // Form states for manual correction
   const [selectedRole, setSelectedRole] = useState<string>('Other');
   const [selectedCity, setSelectedCity] = useState<string>('Other India');
+  const [isRoleCorrect, setIsRoleCorrect] = useState<boolean>(true);
+  const [isCityCorrect, setIsCityCorrect] = useState<boolean>(true);
 
   // Check auth cookie on mount
   useEffect(() => {
@@ -115,10 +118,14 @@ export default function ReviewPage() {
     }
   };
 
-  // Sync selected dropdowns whenever current post changes
+  // Sync selected dropdowns & booleans whenever current post changes
   useEffect(() => {
     if (posts.length > 0 && currentIndex < posts.length) {
       const current = posts[currentIndex];
+      const roleOk = current.role_correct !== false;
+      const cityOk = current.city_correct !== false;
+      setIsRoleCorrect(roleOk);
+      setIsCityCorrect(cityOk);
       setSelectedRole(current.true_role || current.llm_role || 'Other');
       setSelectedCity(current.true_city || current.llm_city || 'Other India');
     }
@@ -126,11 +133,16 @@ export default function ReviewPage() {
 
   const currentPost = posts[currentIndex];
 
-  const handleSaveAnswer = async (trueRole: string, trueCity: string) => {
+  const handleSaveAnswer = async (
+    roleOk: boolean = isRoleCorrect,
+    cityOk: boolean = isCityCorrect,
+    customRole: string = selectedRole,
+    customCity: string = selectedCity
+  ) => {
     if (!currentPost) return;
 
-    const roleCorrect = trueRole === currentPost.llm_role;
-    const cityCorrect = trueCity === currentPost.llm_city;
+    const finalTrueRole = roleOk ? currentPost.llm_role : customRole;
+    const finalTrueCity = cityOk ? currentPost.llm_city : customCity;
 
     setIsSubmitting(true);
 
@@ -140,10 +152,10 @@ export default function ReviewPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           postId: currentPost.id,
-          true_role: trueRole,
-          true_city: trueCity,
-          role_correct: roleCorrect,
-          city_correct: cityCorrect,
+          true_role: finalTrueRole,
+          true_city: finalTrueCity,
+          role_correct: roleOk,
+          city_correct: cityOk,
         }),
       });
 
@@ -152,10 +164,10 @@ export default function ReviewPage() {
         const next = [...prev];
         next[currentIndex] = {
           ...next[currentIndex],
-          true_role: trueRole,
-          true_city: trueCity,
-          role_correct: roleCorrect,
-          city_correct: cityCorrect,
+          true_role: finalTrueRole,
+          true_city: finalTrueCity,
+          role_correct: roleOk,
+          city_correct: cityOk,
           is_reviewed: true,
         };
         return next;
@@ -172,12 +184,7 @@ export default function ReviewPage() {
 
   const handleBothCorrect = () => {
     if (!currentPost) return;
-    handleSaveAnswer(currentPost.llm_role, currentPost.llm_city);
-  };
-
-  const handleCorrectionSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    handleSaveAnswer(selectedRole, selectedCity);
+    handleSaveAnswer(true, true, currentPost.llm_role, currentPost.llm_city);
   };
 
   // Calculated metrics
@@ -536,97 +543,210 @@ export default function ReviewPage() {
             )}
           </div>
 
-          {/* LLM Output Box */}
-          <div className="p-4 rounded-xl border border-[#B2DDFF] bg-[#EFF8FF]/40 space-y-2">
-            <span className="text-xs font-bold uppercase tracking-wider text-[#0D81FC] flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Gemini LLM Classification</span>
-            </span>
+          {/* LLM Output Box with Boolean Options */}
+          <div className="p-4 sm:p-5 rounded-2xl border border-[#B2DDFF] bg-[#EFF8FF]/40 space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+              <span className="text-xs font-bold uppercase tracking-wider text-[#0D81FC] flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Gemini LLM Classification &amp; Verification</span>
+              </span>
+              <span className="text-[11px] text-[#475467]">
+                Click <strong className="text-[#027A48]">Correct</strong> or <strong className="text-[#B42318]">Wrong</strong> on each tag
+              </span>
+            </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-              <div className="bg-white rounded-lg p-3 border border-[#B2DDFF]">
-                <span className="text-[11px] text-[#667085] font-medium block">Tagged Role</span>
-                <span className="text-sm font-bold text-[#101828] mt-0.5 block">{currentPost.llm_role}</span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1">
+              {/* Role Tag Card with Boolean Switch */}
+              <div
+                className={`bg-white rounded-xl p-3.5 border transition-all ${
+                  isRoleCorrect ? 'border-[#B2DDFF]' : 'border-[#FDA29B] ring-2 ring-[#FDA29B]/20'
+                }`}
+              >
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-[11px] text-[#667085] font-semibold uppercase tracking-wider">Role Tag</span>
+                  <span
+                    className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                      isRoleCorrect ? 'bg-[#ECFDF3] text-[#027A48]' : 'bg-[#FEF3F2] text-[#B42318]'
+                    }`}
+                  >
+                    {isRoleCorrect ? '✓ Correct' : '✗ Marked Wrong'}
+                  </span>
+                </div>
+
+                <div className="text-sm font-bold text-[#101828] py-1">{currentPost.llm_role}</div>
+
+                {/* Boolean Buttons */}
+                <div className="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-[#EAECF0]">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsRoleCorrect(true);
+                      setSelectedRole(currentPost.llm_role);
+                    }}
+                    className={`py-1.5 px-2.5 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
+                      isRoleCorrect
+                        ? 'bg-[#12B76A] text-white shadow-2xs'
+                        : 'bg-[#F2F4F7] text-[#475467] hover:bg-[#E4E7EC]'
+                    }`}
+                  >
+                    <Check className="w-3.5 h-3.5" />
+                    <span>Correct</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsRoleCorrect(false);
+                      if (selectedRole === currentPost.llm_role) {
+                        const alternate = ROLE_TAXONOMY.find((r) => r !== currentPost.llm_role) || 'Other';
+                        setSelectedRole(alternate);
+                      }
+                    }}
+                    className={`py-1.5 px-2.5 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
+                      !isRoleCorrect
+                        ? 'bg-[#F04438] text-white shadow-2xs'
+                        : 'bg-[#F2F4F7] text-[#475467] hover:bg-[#E4E7EC]'
+                    }`}
+                  >
+                    <X className="w-3.5 h-3.5" />
+                    <span>Wrong</span>
+                  </button>
+                </div>
+
+                {/* Show Dropdown only if marked Wrong */}
+                {!isRoleCorrect && (
+                  <div className="mt-2.5 pt-2 border-t border-[#FDA29B]/40 animate-in fade-in duration-150">
+                    <label className="block text-[11px] font-semibold text-[#B42318] mb-1">
+                      Choose True Role:
+                    </label>
+                    <select
+                      value={selectedRole}
+                      onChange={(e) => setSelectedRole(e.target.value)}
+                      className="w-full px-2.5 py-1.5 rounded-lg border border-[#FDA29B] bg-white text-xs text-[#101828] font-medium focus:outline-none focus:ring-2 focus:ring-[#F04438]/20 focus:border-[#F04438]"
+                    >
+                      {ROLE_TAXONOMY.map((r) => (
+                        <option key={r} value={r}>
+                          {r}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
               </div>
-              <div className="bg-white rounded-lg p-3 border border-[#B2DDFF]">
-                <span className="text-[11px] text-[#667085] font-medium block">Tagged City</span>
-                <span className="text-sm font-bold text-[#101828] mt-0.5 block">{currentPost.llm_city}</span>
+
+              {/* City Tag Card with Boolean Switch */}
+              <div
+                className={`bg-white rounded-xl p-3.5 border transition-all ${
+                  isCityCorrect ? 'border-[#B2DDFF]' : 'border-[#FDA29B] ring-2 ring-[#FDA29B]/20'
+                }`}
+              >
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-[11px] text-[#667085] font-semibold uppercase tracking-wider">City Tag</span>
+                  <span
+                    className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                      isCityCorrect ? 'bg-[#ECFDF3] text-[#027A48]' : 'bg-[#FEF3F2] text-[#B42318]'
+                    }`}
+                  >
+                    {isCityCorrect ? '✓ Correct' : '✗ Marked Wrong'}
+                  </span>
+                </div>
+
+                <div className="text-sm font-bold text-[#101828] py-1">{currentPost.llm_city}</div>
+
+                {/* Boolean Buttons */}
+                <div className="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-[#EAECF0]">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsCityCorrect(true);
+                      setSelectedCity(currentPost.llm_city);
+                    }}
+                    className={`py-1.5 px-2.5 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
+                      isCityCorrect
+                        ? 'bg-[#12B76A] text-white shadow-2xs'
+                        : 'bg-[#F2F4F7] text-[#475467] hover:bg-[#E4E7EC]'
+                    }`}
+                  >
+                    <Check className="w-3.5 h-3.5" />
+                    <span>Correct</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsCityCorrect(false);
+                      if (selectedCity === currentPost.llm_city) {
+                        const alternate = CANONICAL_CITIES.find((c) => c !== currentPost.llm_city) || 'Other India';
+                        setSelectedCity(alternate);
+                      }
+                    }}
+                    className={`py-1.5 px-2.5 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
+                      !isCityCorrect
+                        ? 'bg-[#F04438] text-white shadow-2xs'
+                        : 'bg-[#F2F4F7] text-[#475467] hover:bg-[#E4E7EC]'
+                    }`}
+                  >
+                    <X className="w-3.5 h-3.5" />
+                    <span>Wrong</span>
+                  </button>
+                </div>
+
+                {/* Show Dropdown only if marked Wrong */}
+                {!isCityCorrect && (
+                  <div className="mt-2.5 pt-2 border-t border-[#FDA29B]/40 animate-in fade-in duration-150">
+                    <label className="block text-[11px] font-semibold text-[#B42318] mb-1">
+                      Choose True City:
+                    </label>
+                    <select
+                      value={selectedCity}
+                      onChange={(e) => setSelectedCity(e.target.value)}
+                      className="w-full px-2.5 py-1.5 rounded-lg border border-[#FDA29B] bg-white text-xs text-[#101828] font-medium focus:outline-none focus:ring-2 focus:ring-[#F04438]/20 focus:border-[#F04438]"
+                    >
+                      {CANONICAL_CITIES.map((c) => (
+                        <option key={c} value={c}>
+                          {c}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
               </div>
             </div>
           </div>
 
           {/* Action Decision Area */}
-          <div className="pt-2 border-t border-[#EAECF0] space-y-4">
-            {/* Quick 1-Click "Both Correct" Button */}
+          <div className="pt-2 border-t border-[#EAECF0] flex items-center justify-between gap-3">
             <button
               type="button"
-              onClick={handleBothCorrect}
-              disabled={isSubmitting}
-              className="w-full py-3 px-4 rounded-xl text-sm font-bold text-white bg-[#0D81FC] hover:bg-[#0B72DF] active:bg-[#0963C4] disabled:opacity-50 transition-colors shadow-xs flex items-center justify-center gap-2"
+              onClick={() => setCurrentIndex((prev) => Math.max(0, prev - 1))}
+              disabled={currentIndex === 0 || isSubmitting}
+              className="px-4 py-2.5 rounded-xl text-xs font-semibold text-[#475467] hover:bg-[#E4E7EC] disabled:opacity-30 transition-colors flex items-center gap-1.5"
             >
-              <Check className="w-4 h-4" />
-              <span>Both Correct (Next)</span>
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>Previous</span>
             </button>
 
-            {/* Manual Correction Form */}
-            <form onSubmit={handleCorrectionSubmit} className="p-4 rounded-xl border border-[#EAECF0] bg-[#F9FAFB] space-y-3">
-              <span className="text-xs font-semibold text-[#344054] block">
-                Or fix role and/or city:
-              </span>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-[11px] font-medium text-[#667085] mb-1">True Role</label>
-                  <select
-                    value={selectedRole}
-                    onChange={(e) => setSelectedRole(e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg border border-[#D0D5DD] bg-white text-xs text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#0D81FC]/20 focus:border-[#0D81FC]"
-                  >
-                    {ROLE_TAXONOMY.map((r) => (
-                      <option key={r} value={r}>
-                        {r}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-[11px] font-medium text-[#667085] mb-1">True City</label>
-                  <select
-                    value={selectedCity}
-                    onChange={(e) => setSelectedCity(e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg border border-[#D0D5DD] bg-white text-xs text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#0D81FC]/20 focus:border-[#0D81FC]"
-                  >
-                    {CANONICAL_CITIES.map((c) => (
-                      <option key={c} value={c}>
-                        {c}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between pt-2">
-                <button
-                  type="button"
-                  onClick={() => setCurrentIndex((prev) => Math.max(0, prev - 1))}
-                  disabled={currentIndex === 0 || isSubmitting}
-                  className="px-3.5 py-2 rounded-lg text-xs font-semibold text-[#475467] hover:bg-[#E4E7EC] disabled:opacity-30 transition-colors flex items-center gap-1.5"
-                >
-                  <ArrowLeft className="w-3.5 h-3.5" />
-                  <span>Previous</span>
-                </button>
-
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="px-4 py-2 rounded-lg text-xs font-bold text-[#0D81FC] bg-[#EFF7FF] hover:bg-[#D1E9FF] border border-[#B2D7FE] transition-colors flex items-center gap-1.5"
-                >
-                  <span>Save Correction &amp; Next</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            </form>
+            {isRoleCorrect && isCityCorrect ? (
+              <button
+                type="button"
+                onClick={handleBothCorrect}
+                disabled={isSubmitting}
+                className="flex-1 py-3 px-4 rounded-xl text-sm font-bold text-white bg-[#0D81FC] hover:bg-[#0B72DF] active:bg-[#0963C4] disabled:opacity-50 transition-colors shadow-xs flex items-center justify-center gap-2"
+              >
+                <Check className="w-4 h-4" />
+                <span>Both Correct (Next Post →)</span>
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => handleSaveAnswer(isRoleCorrect, isCityCorrect, selectedRole, selectedCity)}
+                disabled={isSubmitting}
+                className="flex-1 py-3 px-4 rounded-xl text-sm font-bold text-white bg-[#0D81FC] hover:bg-[#0B72DF] active:bg-[#0963C4] disabled:opacity-50 transition-colors shadow-xs flex items-center justify-center gap-2"
+              >
+                <span>Save Decision &amp; Next Post</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            )}
           </div>
         </div>
       )}
