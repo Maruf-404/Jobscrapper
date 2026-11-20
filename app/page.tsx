@@ -7,7 +7,6 @@ export const revalidate = 300; // ISR revalidate every 300 seconds (PRD Section 
 interface PageProps {
   searchParams: {
     q?: string;
-    source?: string | string[];
     recent?: string;
     page?: string;
   };
@@ -15,11 +14,6 @@ interface PageProps {
 
 export default async function HomePage({ searchParams }: PageProps) {
   const q = searchParams.q || '';
-  const sources = Array.isArray(searchParams.source)
-    ? searchParams.source
-    : searchParams.source
-    ? [searchParams.source]
-    : [];
   const postedIn7Days = searchParams.recent === 'true';
   const page = parseInt(searchParams.page || '1', 10) || 1;
 
@@ -29,12 +23,12 @@ export default async function HomePage({ searchParams }: PageProps) {
   return (
     <div>
       {/* Hero Banner */}
-      <div className="mb-6">
-        <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
+      <div className="mb-3.5">
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#101828]">
           Find Fresher &amp; Internship Jobs in India
         </h1>
-        <p className="text-sm text-slate-600 mt-1 max-w-2xl">
-          Aggregated directly from public company ATS endpoints (Greenhouse, Lever, Ashby, Unstop) and verified fresher APIs.
+        <p className="text-sm text-[#475467] mt-1 max-w-2xl font-normal">
+          Aggregated directly from verified company career pages and official job portals across India.
           Intelligently categorized by role and city using Gemini Flash.
         </p>
       </div>
@@ -45,7 +39,6 @@ export default async function HomePage({ searchParams }: PageProps) {
           initialPosts={posts}
           initialParams={{
             q,
-            sources,
             recent: postedIn7Days,
             page,
           }}

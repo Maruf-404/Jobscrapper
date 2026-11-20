@@ -45,7 +45,7 @@ export async function fetchUnstop(): Promise<SourceResult> {
           const company = (item.organisation?.name || 'Company').trim();
           const locations = item.jobDetail?.locations || [];
           const locStr = locations.length > 0 ? locations.join(', ') : 'India (Remote / Pan-India)';
-          const rawDesc = item.jobDetail?.about_job || item.seo_meta?.description || `Early career position at ${company}.`;
+          const rawDesc = item.jobDetail?.about_job || item.seo_meta?.description || '';
           const description = stripHtml(rawDesc);
           const applyUrl = item.public_url ? `https://unstop.com/${item.public_url}` : 'https://unstop.com';
 

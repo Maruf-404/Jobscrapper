@@ -43,7 +43,7 @@ export default function HighlightText({ text, highlight, className }: HighlightT
         return isMatch ? (
           <mark
             key={index}
-            className="bg-amber-100 text-amber-900 rounded-sm px-0.5 font-medium border-b border-amber-300"
+            className="bg-[#EFF7FF] text-[#0D81FC] rounded-xs px-0.5 font-medium border-b border-[#B2D7FE]"
           >
             {part}
           </mark>

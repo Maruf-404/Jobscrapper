@@ -16,6 +16,18 @@ export function getSupabaseAnonClient(): SupabaseClient | null {
   return null;
 }
 
+export function getSupabaseServiceClient(): SupabaseClient | null {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (supabaseUrl && serviceKey) {
+    return createClient(supabaseUrl, serviceKey, {
+      auth: { persistSession: false },
+    });
+  }
+  return null;
+}
+
 export function isLocalFallback(): boolean {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey =

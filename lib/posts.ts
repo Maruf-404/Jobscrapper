@@ -1,4 +1,4 @@
-import { getSupabaseAnonClient, isLocalFallback, readLocalDatabase } from './supabase-client';
+import { getSupabaseAnonClient, getSupabaseServiceClient, isLocalFallback, readLocalDatabase } from './supabase-client';
 
 export interface PostItem {
   id: string;
@@ -94,6 +94,17 @@ export async function getHeaderStats(): Promise<{ activeCount: number; lastUpdat
   };
 }
 
+function cleanPostItem(post: any): PostItem {
+  let description = post.description;
+  if (description && /^early career/i.test(description.trim())) {
+    description = null;
+  }
+  return {
+    ...post,
+    description,
+  };
+}
+
 export async function getAllActivePosts(): Promise<PostItem[]> {
   const supabase = getSupabaseAnonClient();
 
@@ -108,7 +119,7 @@ export async function getAllActivePosts(): Promise<PostItem[]> {
         .order('posted_at', { ascending: false, nullsFirst: false });
 
       if (!error && data && data.length > 0) {
-        return data as PostItem[];
+        return data.map(cleanPostItem);
       }
     } catch {
       // fallback to local database
@@ -116,9 +127,9 @@ export async function getAllActivePosts(): Promise<PostItem[]> {
   }
 
   const store = readLocalDatabase();
-  const items = Object.values(store.posts || {}).filter(
-    (p: any) => p.is_active && p.is_fresher && !p.duplicate_of
-  ) as PostItem[];
+  const items = Object.values(store.posts || {})
+    .filter((p: any) => p.is_active && p.is_fresher && !p.duplicate_of)
+    .map(cleanPostItem);
 
   items.sort((a, b) => (b.posted_at || '').localeCompare(a.posted_at || ''));
   return items;
@@ -247,12 +258,14 @@ export async function getStatsSummary(): Promise<{
   citiesBreakdown: Record<string, number>;
   sourcesBreakdown: Record<string, number>;
   recentRuns: any[];
+  costPer1kUSD: number;
+  costPer1kINR: number;
 }> {
-  const supabase = getSupabaseAnonClient();
+  const supabase = getSupabaseServiceClient() || getSupabaseAnonClient();
 
   if (supabase) {
     try {
-      const [postsRes, runsRes] = await Promise.all([
+      const [postsRes, runsRes, callsRes] = await Promise.all([
         supabase
           .from('posts')
           .select('role, city, source')
@@ -264,10 +277,14 @@ export async function getStatsSummary(): Promise<{
           .select('*')
           .order('started_at', { ascending: false })
           .limit(10),
+        supabase
+          .from('llm_calls')
+          .select('posts_in_batch, input_tokens, output_tokens'),
       ]);
 
       const posts = postsRes.data || [];
       const runs = runsRes.data || [];
+      const calls = callsRes.data || [];
 
       const rolesBreakdown: Record<string, number> = {};
       const citiesBreakdown: Record<string, number> = {};
@@ -287,6 +304,20 @@ export async function getStatsSummary(): Promise<{
         0
       );
 
+      let totalPostsTagged = 0;
+      let totalIn = 0;
+      let totalOut = 0;
+      for (const c of calls) {
+        totalPostsTagged += c.posts_in_batch || 1;
+        totalIn += c.input_tokens || 0;
+        totalOut += c.output_tokens || 0;
+      }
+
+      const inCost = (totalIn / 1e6) * 0.075;
+      const outCost = (totalOut / 1e6) * 0.30;
+      const costPer1kUSD = totalPostsTagged > 0 ? ((inCost + outCost) / totalPostsTagged) * 1000 : 0.0498;
+      const costPer1kINR = costPer1kUSD * 86;
+
       return {
         activeTotal: posts.length,
         totalDuplicatesRemoved,
@@ -294,6 +325,8 @@ export async function getStatsSummary(): Promise<{
         citiesBreakdown,
         sourcesBreakdown,
         recentRuns: runs,
+        costPer1kUSD,
+        costPer1kINR,
       };
     } catch {
       // fallback
@@ -332,5 +365,7 @@ export async function getStatsSummary(): Promise<{
     citiesBreakdown,
     sourcesBreakdown,
     recentRuns: runs,
+    costPer1kUSD: 0.0498,
+    costPer1kINR: 4.28,
   };
 }

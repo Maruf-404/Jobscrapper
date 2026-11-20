@@ -9,13 +9,26 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        brand: {
-          50: "#eef2ff",
-          100: "#e0e7ff",
-          500: "#6366f1",
-          600: "#4f46e5",
-          700: "#4338ca",
+        primary: {
+          DEFAULT: "#0D81FC",
+          hover: "#0B72DF",
+          active: "#0963C4",
+          light: "#EFF7FF",
+          border: "#B2D7FE",
         },
+        surface: "#FFFFFF",
+        text: {
+          DEFAULT: "#101828",
+          secondary: "#475467",
+          muted: "#667085",
+        },
+        border: {
+          DEFAULT: "#EAECF0",
+          subtle: "#F2F4F7",
+        },
+      },
+      fontFamily: {
+        sans: ["var(--font-noto-sans)", "Noto Sans", "system-ui", "sans-serif"],
       },
     },
   },
