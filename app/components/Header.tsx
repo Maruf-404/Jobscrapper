@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BarChart2, Briefcase, RefreshCw, CheckSquare } from 'lucide-react';
+import { BarChart2, Briefcase, RefreshCw } from 'lucide-react';
 
 interface HeaderProps {
   activeCount: number;
@@ -13,7 +13,6 @@ export default function Header({ activeCount, lastUpdatedIST }: HeaderProps) {
   const pathname = usePathname();
   const isJobs = pathname === '/';
   const isStats = pathname === '/stats';
-  const isReview = pathname === '/review';
 
   return (
     <header className="sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-[#EAECF0]">
@@ -33,7 +32,7 @@ export default function Header({ activeCount, lastUpdatedIST }: HeaderProps) {
             </Link>
           </div>
 
-          {/* Center: Jobs, Stats, and Review Navigation */}
+          {/* Center: Jobs & Stats Navigation */}
           <nav className="absolute left-1/2 -translate-x-1/2 flex items-center p-1 bg-[#F2F4F7] rounded-xl border border-[#EAECF0] shadow-2xs">
             <Link
               href="/"
@@ -56,17 +55,6 @@ export default function Header({ activeCount, lastUpdatedIST }: HeaderProps) {
             >
               <BarChart2 className={`w-3.5 h-3.5 ${isStats ? 'text-[#0D81FC]' : 'text-[#667085]'}`} />
               <span>Stats</span>
-            </Link>
-            <Link
-              href="/review"
-              className={`flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all ${
-                isReview
-                  ? 'bg-white text-[#0D81FC] shadow-xs'
-                  : 'text-[#475467] hover:text-[#101828] hover:bg-white/60'
-              }`}
-            >
-              <CheckSquare className={`w-3.5 h-3.5 ${isReview ? 'text-[#0D81FC]' : 'text-[#667085]'}`} />
-              <span>Review</span>
             </Link>
           </nav>
 
