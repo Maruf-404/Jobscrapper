@@ -7,8 +7,6 @@ export const revalidate = 300; // ISR revalidate every 300 seconds (PRD Section 
 interface PageProps {
   searchParams: {
     q?: string;
-    role?: string | string[];
-    city?: string | string[];
     source?: string | string[];
     recent?: string;
     page?: string;
@@ -17,16 +15,6 @@ interface PageProps {
 
 export default async function HomePage({ searchParams }: PageProps) {
   const q = searchParams.q || '';
-  const roles = Array.isArray(searchParams.role)
-    ? searchParams.role
-    : searchParams.role
-    ? [searchParams.role]
-    : [];
-  const cities = Array.isArray(searchParams.city)
-    ? searchParams.city
-    : searchParams.city
-    ? [searchParams.city]
-    : [];
   const sources = Array.isArray(searchParams.source)
     ? searchParams.source
     : searchParams.source
@@ -57,8 +45,6 @@ export default async function HomePage({ searchParams }: PageProps) {
           initialPosts={posts}
           initialParams={{
             q,
-            roles,
-            cities,
             sources,
             recent: postedIn7Days,
             page,

@@ -1,8 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Search, X, Filter, RotateCcw, Check, Sparkles } from 'lucide-react';
-import { ROLE_TAXONOMY, CANONICAL_CITIES } from '@/pipeline/prompts';
+import { Search, X, Filter, RotateCcw, Sparkles } from 'lucide-react';
 
 const SOURCES = [
   { id: 'greenhouse', name: 'Greenhouse' },
@@ -26,10 +25,6 @@ const POPULAR_SEARCHES = [
 export interface SearchAndFiltersProps {
   searchTerm: string;
   onSearchChange: (value: string) => void;
-  selectedRoles: string[];
-  onToggleRole: (role: string) => void;
-  selectedCities: string[];
-  onToggleCity: (city: string) => void;
   selectedSources: string[];
   onToggleSource: (source: string) => void;
   onlyRecent: boolean;
@@ -40,10 +35,6 @@ export interface SearchAndFiltersProps {
 export default function SearchAndFilters({
   searchTerm,
   onSearchChange,
-  selectedRoles,
-  onToggleRole,
-  selectedCities,
-  onToggleCity,
   selectedSources,
   onToggleSource,
   onlyRecent,
@@ -54,8 +45,6 @@ export default function SearchAndFilters({
 
   const hasActiveFilters =
     Boolean(searchTerm) ||
-    selectedRoles.length > 0 ||
-    selectedCities.length > 0 ||
     selectedSources.length > 0 ||
     onlyRecent;
 
@@ -69,7 +58,7 @@ export default function SearchAndFilters({
             type="text"
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Search title, skills, or company (e.g. Python, React, SDE Intern, Capco)..."
+            placeholder="Search title, skills, company, or city (e.g. Python, React, SDE Intern, Bengaluru, Remote)..."
             className="w-full pl-10 pr-10 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all placeholder:text-slate-400"
           />
 
@@ -142,40 +131,6 @@ export default function SearchAndFilters({
             </span>
           )}
 
-          {selectedRoles.map((r) => (
-            <span
-              key={r}
-              className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700 border border-blue-200 font-medium"
-            >
-              <span>Role: {r}</span>
-              <button
-                type="button"
-                onClick={() => onToggleRole(r)}
-                className="hover:text-blue-900 ml-1 p-0.5"
-                title={`Remove role filter ${r}`}
-              >
-                <X className="w-3 h-3" />
-              </button>
-            </span>
-          ))}
-
-          {selectedCities.map((c) => (
-            <span
-              key={c}
-              className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 font-medium"
-            >
-              <span>City: {c}</span>
-              <button
-                type="button"
-                onClick={() => onToggleCity(c)}
-                className="hover:text-emerald-900 ml-1 p-0.5"
-                title={`Remove city filter ${c}`}
-              >
-                <X className="w-3 h-3" />
-              </button>
-            </span>
-          ))}
-
           {selectedSources.map((s) => {
             const match = SOURCES.find((src) => src.id === s);
             const label = match ? match.name : s;
@@ -222,82 +177,13 @@ export default function SearchAndFilters({
         </div>
       )}
 
-      {/* Filter Section */}
+      {/* Sources & 7-Days Quick Filter Bar */}
       <div
         className={`${
           showFiltersMobile ? 'block' : 'hidden sm:block'
-        } mt-5 pt-5 border-t border-slate-100 space-y-4`}
+        } mt-4 pt-4 border-t border-slate-100`}
       >
-        {/* Role Pills */}
-        <div>
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-              Role Categories
-            </span>
-            {selectedRoles.length > 0 && (
-              <span className="text-[11px] font-semibold text-indigo-600">
-                {selectedRoles.length} selected
-              </span>
-            )}
-          </div>
-          <div className="flex flex-wrap gap-1.5">
-            {ROLE_TAXONOMY.map((role) => {
-              const active = selectedRoles.includes(role);
-              return (
-                <button
-                  key={role}
-                  type="button"
-                  onClick={() => onToggleRole(role)}
-                  className={`inline-flex items-center space-x-1 px-3 py-1 rounded-full text-xs font-medium transition-all ${
-                    active
-                      ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-200'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200/80 hover:text-slate-900'
-                  }`}
-                >
-                  {active && <Check className="w-3 h-3 stroke-[2.5]" />}
-                  <span>{role}</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* City Pills */}
-        <div>
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-              Top Indian Cities
-            </span>
-            {selectedCities.length > 0 && (
-              <span className="text-[11px] font-semibold text-indigo-600">
-                {selectedCities.length} selected
-              </span>
-            )}
-          </div>
-          <div className="flex flex-wrap gap-1.5">
-            {CANONICAL_CITIES.map((city) => {
-              const active = selectedCities.includes(city);
-              return (
-                <button
-                  key={city}
-                  type="button"
-                  onClick={() => onToggleCity(city)}
-                  className={`inline-flex items-center space-x-1 px-3 py-1 rounded-full text-xs font-medium transition-all ${
-                    active
-                      ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-200'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200/80 hover:text-slate-900'
-                  }`}
-                >
-                  {active && <Check className="w-3 h-3 stroke-[2.5]" />}
-                  <span>{city}</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Sources & 7-Days Quick Filter Bar */}
-        <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-100">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-xs font-bold text-slate-500 uppercase tracking-wider mr-1">
               Sources:
@@ -311,7 +197,7 @@ export default function SearchAndFilters({
                   onClick={() => onToggleSource(s.id)}
                   className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all ${
                     active
-                      ? 'bg-slate-900 text-white'
+                      ? 'bg-slate-900 text-white shadow-sm'
                       : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                   }`}
                 >

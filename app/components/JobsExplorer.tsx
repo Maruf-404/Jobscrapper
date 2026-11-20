@@ -13,8 +13,6 @@ export interface JobsExplorerProps {
   initialPosts: PostItem[];
   initialParams: {
     q?: string;
-    roles?: string[];
-    cities?: string[];
     sources?: string[];
     recent?: boolean;
     page?: number;
@@ -23,8 +21,6 @@ export interface JobsExplorerProps {
 
 export default function JobsExplorer({ initialPosts, initialParams }: JobsExplorerProps) {
   const [searchTerm, setSearchTerm] = useState(initialParams.q || '');
-  const [selectedRoles, setSelectedRoles] = useState<string[]>(initialParams.roles || []);
-  const [selectedCities, setSelectedCities] = useState<string[]>(initialParams.cities || []);
   const [selectedSources, setSelectedSources] = useState<string[]>(initialParams.sources || []);
   const [onlyRecent, setOnlyRecent] = useState<boolean>(initialParams.recent || false);
   const [currentPage, setCurrentPage] = useState<number>(initialParams.page || 1);
@@ -45,18 +41,6 @@ export default function JobsExplorer({ initialPosts, initialParams }: JobsExplor
       });
     }
 
-    // Role category filter
-    if (selectedRoles.length > 0) {
-      const roleSet = new Set(selectedRoles);
-      list = list.filter((p) => p.role && roleSet.has(p.role));
-    }
-
-    // City filter
-    if (selectedCities.length > 0) {
-      const citySet = new Set(selectedCities);
-      list = list.filter((p) => p.city && citySet.has(p.city));
-    }
-
     // Source filter
     if (selectedSources.length > 0) {
       const sourceSet = new Set(selectedSources);
@@ -70,7 +54,7 @@ export default function JobsExplorer({ initialPosts, initialParams }: JobsExplor
     }
 
     return list;
-  }, [initialPosts, searchTerm, selectedRoles, selectedCities, selectedSources, onlyRecent]);
+  }, [initialPosts, searchTerm, selectedSources, onlyRecent]);
 
   // Synchronize browser URL silently using replaceState without triggering network roundtrips
   useEffect(() => {
@@ -81,8 +65,6 @@ export default function JobsExplorer({ initialPosts, initialParams }: JobsExplor
 
     const params = new URLSearchParams();
     if (searchTerm.trim()) params.set('q', searchTerm.trim());
-    selectedRoles.forEach((r) => params.append('role', r));
-    selectedCities.forEach((c) => params.append('city', c));
     selectedSources.forEach((s) => params.append('source', s));
     if (onlyRecent) params.set('recent', 'true');
     if (currentPage > 1) params.set('page', String(currentPage));
@@ -90,25 +72,11 @@ export default function JobsExplorer({ initialPosts, initialParams }: JobsExplor
     const paramStr = params.toString();
     const targetUrl = paramStr ? `/?${paramStr}` : window.location.pathname;
     window.history.replaceState(null, '', targetUrl);
-  }, [searchTerm, selectedRoles, selectedCities, selectedSources, onlyRecent, currentPage]);
+  }, [searchTerm, selectedSources, onlyRecent, currentPage]);
 
   // Handlers that reset pagination to page 1 on filter modification
   const handleSearchChange = (value: string) => {
     setSearchTerm(value);
-    setCurrentPage(1);
-  };
-
-  const handleToggleRole = (role: string) => {
-    setSelectedRoles((prev) =>
-      prev.includes(role) ? prev.filter((r) => r !== role) : [...prev, role]
-    );
-    setCurrentPage(1);
-  };
-
-  const handleToggleCity = (city: string) => {
-    setSelectedCities((prev) =>
-      prev.includes(city) ? prev.filter((c) => c !== city) : [...prev, city]
-    );
     setCurrentPage(1);
   };
 
@@ -126,8 +94,6 @@ export default function JobsExplorer({ initialPosts, initialParams }: JobsExplor
 
   const handleResetAll = () => {
     setSearchTerm('');
-    setSelectedRoles([]);
-    setSelectedCities([]);
     setSelectedSources([]);
     setOnlyRecent(false);
     setCurrentPage(1);
@@ -155,10 +121,6 @@ export default function JobsExplorer({ initialPosts, initialParams }: JobsExplor
       <SearchAndFilters
         searchTerm={searchTerm}
         onSearchChange={handleSearchChange}
-        selectedRoles={selectedRoles}
-        onToggleRole={handleToggleRole}
-        selectedCities={selectedCities}
-        onToggleCity={handleToggleCity}
         selectedSources={selectedSources}
         onToggleSource={handleToggleSource}
         onlyRecent={onlyRecent}
