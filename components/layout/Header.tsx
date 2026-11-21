@@ -66,9 +66,9 @@ export default function Header({ activeCount, lastUpdatedIST }: HeaderProps) {
                 <span>{activeCount.toLocaleString()} Active Roles</span>
                 <span
                   className="text-[11px] font-semibold text-[#027A48] bg-[#ECFDF3] px-1.5 py-0.5 rounded border border-[#ABEFC6]"
-                  title="Gemini LLM tagging cost: $0.0498 (~₹4.28 INR) per 1,000 posts"
+                  title="Gemini LLM tagging cost: $0.208 (~₹17.85 INR) per 1,000 posts (Official Gemini 3.1 Flash-Lite rate)"
                 >
-                  $0.0498 / 1k
+                  $0.208 / 1k
                 </span>
               </div>
               <div className="flex items-center space-x-1 text-[#98A2B3] mt-0.5">

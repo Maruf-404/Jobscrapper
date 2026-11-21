@@ -39,3 +39,22 @@ export interface HeaderStats {
   activeCount: number;
   lastUpdatedIST: string;
 }
+
+export interface AccuracyMetric {
+  correct: number;
+  total: number;
+  pct: number;
+}
+
+export interface StatsSummary {
+  activeTotal: number;
+  totalDuplicatesRemoved: number;
+  rolesBreakdown: Record<string, number>;
+  citiesBreakdown: Record<string, number>;
+  sourcesBreakdown: Record<string, number>;
+  recentRuns: any[];
+  costPer1kUSD: number;
+  costPer1kINR: number;
+  roleAccuracy: AccuracyMetric;
+  cityAccuracy: AccuracyMetric;
+}

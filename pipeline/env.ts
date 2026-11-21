@@ -32,8 +32,8 @@ export function loadEnv(): PipelineEnv {
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
   const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   const joobleApiKey = process.env.JOOBLE_API_KEY;
-  const priceInPerM = parseFloat(process.env.PRICE_IN_PER_M || '0.075');
-  const priceOutPerM = parseFloat(process.env.PRICE_OUT_PER_M || '0.30');
+  const priceInPerM = parseFloat(process.env.PRICE_IN_PER_M || '0.25');
+  const priceOutPerM = parseFloat(process.env.PRICE_OUT_PER_M || '1.50');
   const llmRpm = parseInt(process.env.LLM_RPM || '10', 10);
 
   if (joobleApiKey) {

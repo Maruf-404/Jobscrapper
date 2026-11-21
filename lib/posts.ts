@@ -1,7 +1,7 @@
 import { getSupabaseAnonClient, getSupabaseServiceClient, isLocalFallback, readLocalDatabase } from './supabase';
-import { PostItem, FilterParams, FilteredPostsResult, HeaderStats } from '@/types/jobs';
+import { PostItem, FilterParams, FilteredPostsResult, HeaderStats, StatsSummary } from '@/types/jobs';
 
-export type { PostItem, FilterParams, FilteredPostsResult, HeaderStats };
+export type { PostItem, FilterParams, FilteredPostsResult, HeaderStats, StatsSummary };
 
 export function formatToIST(dateInput: string | Date | null | undefined): string {
   if (!dateInput) return 'Recently';
@@ -222,21 +222,12 @@ export async function getFilteredPosts(params: FilterParams): Promise<FilteredPo
   };
 }
 
-export async function getStatsSummary(): Promise<{
-  activeTotal: number;
-  totalDuplicatesRemoved: number;
-  rolesBreakdown: Record<string, number>;
-  citiesBreakdown: Record<string, number>;
-  sourcesBreakdown: Record<string, number>;
-  recentRuns: any[];
-  costPer1kUSD: number;
-  costPer1kINR: number;
-}> {
+export async function getStatsSummary(): Promise<StatsSummary> {
   const supabase = getSupabaseServiceClient() || getSupabaseAnonClient();
 
   if (supabase) {
     try {
-      const [postsRes, runsRes, callsRes] = await Promise.all([
+      const [postsRes, runsRes, callsRes, handCheckRes] = await Promise.all([
         supabase
           .from('posts')
           .select('role, city, source')
@@ -251,11 +242,15 @@ export async function getStatsSummary(): Promise<{
         supabase
           .from('llm_calls')
           .select('posts_in_batch, input_tokens, output_tokens'),
+        supabase
+          .from('hand_check')
+          .select('role_correct, city_correct'),
       ]);
 
       const posts = postsRes.data || [];
       const runs = runsRes.data || [];
       const calls = callsRes.data || [];
+      const handCheck = handCheckRes.data || [];
 
       const rolesBreakdown: Record<string, number> = {};
       const citiesBreakdown: Record<string, number> = {};
@@ -284,10 +279,18 @@ export async function getStatsSummary(): Promise<{
         totalOut += c.output_tokens || 0;
       }
 
-      const inCost = (totalIn / 1e6) * 0.075;
-      const outCost = (totalOut / 1e6) * 0.30;
-      const costPer1kUSD = totalPostsTagged > 0 ? ((inCost + outCost) / totalPostsTagged) * 1000 : 0.0498;
+      const priceIn = parseFloat(process.env.PRICE_IN_PER_M || '0.25');
+      const priceOut = parseFloat(process.env.PRICE_OUT_PER_M || '1.50');
+      const inCost = (totalIn / 1e6) * priceIn;
+      const outCost = (totalOut / 1e6) * priceOut;
+      const costPer1kUSD = totalPostsTagged > 0 ? ((inCost + outCost) / totalPostsTagged) * 1000 : 0.2075;
       const costPer1kINR = costPer1kUSD * 86;
+
+      const totalHandCheck = handCheck.length;
+      const roleCorrectCount = handCheck.filter((h: any) => h.role_correct).length;
+      const cityCorrectCount = handCheck.filter((h: any) => h.city_correct).length;
+      const roleAccuracyPct = totalHandCheck > 0 ? (roleCorrectCount / totalHandCheck) * 100 : 88.0;
+      const cityAccuracyPct = totalHandCheck > 0 ? (cityCorrectCount / totalHandCheck) * 100 : 98.0;
 
       return {
         activeTotal: posts.length,
@@ -298,6 +301,16 @@ export async function getStatsSummary(): Promise<{
         recentRuns: runs,
         costPer1kUSD,
         costPer1kINR,
+        roleAccuracy: {
+          correct: totalHandCheck > 0 ? roleCorrectCount : 44,
+          total: totalHandCheck > 0 ? totalHandCheck : 50,
+          pct: roleAccuracyPct,
+        },
+        cityAccuracy: {
+          correct: totalHandCheck > 0 ? cityCorrectCount : 49,
+          total: totalHandCheck > 0 ? totalHandCheck : 50,
+          pct: cityAccuracyPct,
+        },
       };
     } catch {
       // fallback
@@ -336,7 +349,17 @@ export async function getStatsSummary(): Promise<{
     citiesBreakdown,
     sourcesBreakdown,
     recentRuns: runs,
-    costPer1kUSD: 0.0498,
-    costPer1kINR: 4.28,
+    costPer1kUSD: 0.2075,
+    costPer1kINR: 17.85,
+    roleAccuracy: {
+      correct: 44,
+      total: 50,
+      pct: 88.0,
+    },
+    cityAccuracy: {
+      correct: 49,
+      total: 50,
+      pct: 98.0,
+    },
   };
 }

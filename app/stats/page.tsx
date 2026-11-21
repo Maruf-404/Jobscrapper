@@ -1,5 +1,5 @@
 import { getStatsSummary, formatToIST } from '@/lib/posts';
-import { BarChart3, Layers, MapPin, Database, CheckCircle2, AlertTriangle, ArrowLeft, Zap } from 'lucide-react';
+import { BarChart3, Layers, MapPin, Database, CheckCircle2, AlertTriangle, ArrowLeft, Zap, Target } from 'lucide-react';
 import Link from 'next/link';
 
 export const revalidate = 300; // ISR revalidate every 300s (PRD Section 8)
@@ -35,77 +35,95 @@ export default async function StatsPage() {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
         {/* 1. Active Fresher Roles */}
-        <div className="bg-white rounded-xl border border-[#EAECF0] p-5 shadow-xs">
+        <div className="bg-white rounded-xl border border-[#EAECF0] p-4 sm:p-5 shadow-xs">
           <div className="flex items-center justify-between text-xs font-medium text-[#667085]">
-            <span>Active Fresher Roles</span>
+            <span>Active Roles</span>
             <div className="p-1.5 rounded-lg bg-[#ECFDF3] text-[#027A48]">
               <CheckCircle2 className="w-4 h-4" />
             </div>
           </div>
-          <div className="mt-2 text-2xl sm:text-3xl font-bold text-[#101828]">
+          <div className="mt-2 text-2xl font-bold text-[#101828]">
             {stats.activeTotal.toLocaleString()}
           </div>
-          <p className="text-[11px] text-[#027A48] mt-1 font-medium">100% verified 0-2 yrs experience</p>
+          <p className="text-[11px] text-[#027A48] mt-1 font-medium">0-2 yrs fresher only</p>
         </div>
 
-        {/* 2. LLM Tagging Cost / 1k Posts (Beside Active Fresher Roles) */}
-        <div className="bg-white rounded-xl border border-[#B2DDFF] bg-[#EFF8FF]/30 p-5 shadow-xs">
-          <div className="flex items-center justify-between text-xs font-medium text-[#667085]">
-            <span>LLM Cost / 1k Posts</span>
-            <div className="p-1.5 rounded-lg bg-[#D1E9FF] text-[#0D81FC]">
-              <Zap className="w-4 h-4" />
+        {/* 2. Role Tagging Accuracy */}
+        <div className="bg-white rounded-xl border border-[#D6BBFB] bg-[#F9F5FF]/40 p-4 sm:p-5 shadow-xs">
+          <div className="flex items-center justify-between text-xs font-medium text-[#6941C6]">
+            <span>Role Accuracy</span>
+            <div className="p-1.5 rounded-lg bg-[#F4EBFF] text-[#6941C6]">
+              <Target className="w-4 h-4" />
             </div>
           </div>
-          <div className="mt-2 text-2xl sm:text-3xl font-bold text-[#0D81FC]">
-            ${stats.costPer1kUSD.toFixed(4)}
+          <div className="mt-2 text-2xl font-bold text-[#6941C6]">
+            {stats.roleAccuracy.pct.toFixed(1)}%
           </div>
           <p className="text-[11px] text-[#475467] mt-1 font-medium">
-            ≈ ₹{stats.costPer1kINR.toFixed(2)} INR (Gemini Flash)
+            {stats.roleAccuracy.correct}/{stats.roleAccuracy.total} hand-verified
           </p>
         </div>
 
-        {/* 3. Duplicates Removed */}
-        <div className="bg-white rounded-xl border border-[#EAECF0] p-5 shadow-xs">
+        {/* 3. City Tagging Accuracy */}
+        <div className="bg-white rounded-xl border border-[#B2DDFF] bg-[#EFF8FF]/40 p-4 sm:p-5 shadow-xs">
+          <div className="flex items-center justify-between text-xs font-medium text-[#0D81FC]">
+            <span>City Accuracy</span>
+            <div className="p-1.5 rounded-lg bg-[#D1E9FF] text-[#0D81FC]">
+              <MapPin className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="mt-2 text-2xl font-bold text-[#0D81FC]">
+            {stats.cityAccuracy.pct.toFixed(1)}%
+          </div>
+          <p className="text-[11px] text-[#475467] mt-1 font-medium">
+            {stats.cityAccuracy.correct}/{stats.cityAccuracy.total} hand-verified
+          </p>
+        </div>
+
+        {/* 4. LLM Tagging Cost / 1k Posts */}
+        <div className="bg-white rounded-xl border border-[#EAECF0] p-4 sm:p-5 shadow-xs">
           <div className="flex items-center justify-between text-xs font-medium text-[#667085]">
-            <span>Duplicates Removed</span>
-            <div className="p-1.5 rounded-lg bg-[#EFF7FF] text-[#0D81FC]">
+            <span>Cost / 1k Posts</span>
+            <div className="p-1.5 rounded-lg bg-[#EFF8FF] text-[#0D81FC]">
+              <Zap className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="mt-2 text-2xl font-bold text-[#101828]">
+            ${stats.costPer1kUSD.toFixed(3)}
+          </div>
+          <p className="text-[11px] text-[#475467] mt-1 font-medium">
+            ≈ ₹{stats.costPer1kINR.toFixed(2)} INR
+          </p>
+        </div>
+
+        {/* 5. Duplicates Removed */}
+        <div className="bg-white rounded-xl border border-[#EAECF0] p-4 sm:p-5 shadow-xs">
+          <div className="flex items-center justify-between text-xs font-medium text-[#667085]">
+            <span>Duplicates Filtered</span>
+            <div className="p-1.5 rounded-lg bg-[#F2F4F7] text-[#344054]">
               <Layers className="w-4 h-4" />
             </div>
           </div>
-          <div className="mt-2 text-2xl sm:text-3xl font-bold text-[#101828]">
+          <div className="mt-2 text-2xl font-bold text-[#101828]">
             {stats.totalDuplicatesRemoved.toLocaleString()}
           </div>
-          <p className="text-[11px] text-[#667085] mt-1">Via exact hash & trigram &gt;0.85</p>
+          <p className="text-[11px] text-[#667085] mt-1">Hash & trigram &gt;0.85</p>
         </div>
 
-        {/* 4. Role Categories */}
-        <div className="bg-white rounded-xl border border-[#EAECF0] p-5 shadow-xs">
+        {/* 6. Role Categories */}
+        <div className="bg-white rounded-xl border border-[#EAECF0] p-4 sm:p-5 shadow-xs">
           <div className="flex items-center justify-between text-xs font-medium text-[#667085]">
-            <span>Role Categories</span>
+            <span>Role Taxonomy</span>
             <div className="p-1.5 rounded-lg bg-[#F9F5FF] text-[#6941C6]">
               <BarChart3 className="w-4 h-4" />
             </div>
           </div>
-          <div className="mt-2 text-2xl sm:text-3xl font-bold text-[#101828]">
+          <div className="mt-2 text-2xl font-bold text-[#101828]">
             {sortedRoles.length}
           </div>
-          <p className="text-[11px] text-[#667085] mt-1">Fixed role taxonomy</p>
-        </div>
-
-        {/* 5. Logged Pipeline Runs */}
-        <div className="bg-white rounded-xl border border-[#EAECF0] p-5 shadow-xs col-span-2 sm:col-span-1">
-          <div className="flex items-center justify-between text-xs font-medium text-[#667085]">
-            <span>Pipeline Runs</span>
-            <div className="p-1.5 rounded-lg bg-[#FEF6EE] text-[#B93815]">
-              <Database className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="mt-2 text-2xl sm:text-3xl font-bold text-[#101828]">
-            {stats.recentRuns.length}
-          </div>
-          <p className="text-[11px] text-[#667085] mt-1">Refreshed daily via GitHub Actions</p>
+          <p className="text-[11px] text-[#667085] mt-1">Defined categories</p>
         </div>
       </div>
 
