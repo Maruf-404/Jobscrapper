@@ -36,22 +36,20 @@ export default function Header({ activeCount, lastUpdatedIST }: HeaderProps) {
           <nav className="absolute left-1/2 -translate-x-1/2 flex items-center p-1 bg-[#F2F4F7] rounded-xl border border-[#EAECF0] shadow-2xs">
             <Link
               href="/"
-              className={`flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all ${
-                isJobs
-                  ? 'bg-white text-[#0D81FC] shadow-xs'
-                  : 'text-[#475467] hover:text-[#101828] hover:bg-white/60'
-              }`}
+              className={`flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all ${isJobs
+                ? 'bg-white text-[#0D81FC] shadow-xs'
+                : 'text-[#475467] hover:text-[#101828] hover:bg-white/60'
+                }`}
             >
               <Briefcase className={`w-3.5 h-3.5 ${isJobs ? 'text-[#0D81FC]' : 'text-[#667085]'}`} />
               <span>Jobs</span>
             </Link>
             <Link
               href="/stats"
-              className={`flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all ${
-                isStats
-                  ? 'bg-white text-[#0D81FC] shadow-xs'
-                  : 'text-[#475467] hover:text-[#101828] hover:bg-white/60'
-              }`}
+              className={`flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all ${isStats
+                ? 'bg-white text-[#0D81FC] shadow-xs'
+                : 'text-[#475467] hover:text-[#101828] hover:bg-white/60'
+                }`}
             >
               <BarChart2 className={`w-3.5 h-3.5 ${isStats ? 'text-[#0D81FC]' : 'text-[#667085]'}`} />
               <span>Stats</span>

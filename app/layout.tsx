@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
 import { Noto_Sans } from 'next/font/google';
 import './globals.css';
-import Header from './components/Header';
+import Header from '@/components/layout/Header';
+import Footer from '@/components/layout/Footer';
 import { getHeaderStats } from '@/lib/posts';
 
 const notoSans = Noto_Sans({
@@ -31,12 +32,7 @@ export default async function RootLayout({
         <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-5">
           {children}
         </main>
-        <footer className="border-t border-[#EAECF0] bg-white py-6 text-center text-xs text-[#667085]">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <p>© {new Date().getFullYear()} Fresher Jobs India. All posts sourced from public ATS and authorized job APIs.</p>
-            <p className="text-[#98A2B3]">Automated daily via GitHub Actions</p>
-          </div>
-        </footer>
+        <Footer />
       </body>
     </html>
   );

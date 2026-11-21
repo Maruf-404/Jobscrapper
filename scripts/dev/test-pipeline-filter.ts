@@ -1,6 +1,6 @@
-import { fetchAllSources } from './sources/index';
-import { preFilterPosts } from './prefilter';
-import { deduplicatePosts } from './dedupe';
+import { fetchAllSources } from '../../pipeline/sources/index';
+import { preFilterPosts } from '../../pipeline/prefilter';
+import { deduplicatePosts } from '../../pipeline/dedupe';
 
 async function main() {
   console.log('Testing Pre-filter and Deduplication...');

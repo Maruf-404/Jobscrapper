@@ -1,39 +1,10 @@
 // Prompts and taxonomies for Gemini LLM Tagging
 // PRD Section 6
 
-export const ROLE_TAXONOMY = [
-  'Software Engineering',
-  'Data & Analytics',
-  'AI/ML',
-  'Product',
-  'Design/UX',
-  'Marketing',
-  'Sales & Business Development',
-  'Content & Writing',
-  'Operations',
-  'Finance & Accounting',
-  'HR & Recruitment',
-  'Customer Support',
-  'Other',
-] as const;
+import { ROLE_TAXONOMY, RoleCategory, CANONICAL_CITIES, CanonicalCity } from '../types/taxonomy';
 
-export type RoleCategory = (typeof ROLE_TAXONOMY)[number];
-
-export const CANONICAL_CITIES = [
-  'Bengaluru',
-  'Mumbai',
-  'Pune',
-  'Delhi NCR',
-  'Hyderabad',
-  'Chennai',
-  'Kolkata',
-  'Ahmedabad',
-  'Jaipur',
-  'Remote',
-  'Other India',
-] as const;
-
-export type CanonicalCity = (typeof CANONICAL_CITIES)[number];
+export { ROLE_TAXONOMY, CANONICAL_CITIES };
+export type { RoleCategory, CanonicalCity };
 
 export interface TaggingInputPost {
   id: string;

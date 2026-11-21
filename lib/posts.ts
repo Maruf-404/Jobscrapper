@@ -1,36 +1,7 @@
-import { getSupabaseAnonClient, getSupabaseServiceClient, isLocalFallback, readLocalDatabase } from './supabase-client';
+import { getSupabaseAnonClient, getSupabaseServiceClient, isLocalFallback, readLocalDatabase } from './supabase';
+import { PostItem, FilterParams, FilteredPostsResult, HeaderStats } from '@/types/jobs';
 
-export interface PostItem {
-  id: string;
-  title: string;
-  company: string;
-  location_raw: string;
-  description: string;
-  apply_url: string;
-  source: string;
-  posted_at: string | null;
-  role: string | null;
-  city: string | null;
-  is_fresher: boolean;
-  tag_confidence: number | null;
-}
-
-export interface FilterParams {
-  search?: string;
-  roles?: string[];
-  cities?: string[];
-  sources?: string[];
-  postedIn7Days?: boolean;
-  page?: number;
-  limit?: number;
-}
-
-export interface FilteredPostsResult {
-  posts: PostItem[];
-  totalCount: number;
-  page: number;
-  totalPages: number;
-}
+export type { PostItem, FilterParams, FilteredPostsResult, HeaderStats };
 
 export function formatToIST(dateInput: string | Date | null | undefined): string {
   if (!dateInput) return 'Recently';

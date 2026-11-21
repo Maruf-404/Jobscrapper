@@ -48,29 +48,9 @@ export default function Pagination({
           <span>Previous</span>
         </button>
 
-        <div className="flex items-center space-x-1">
-          {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-            // Center window around current page
-            let pageNum = currentPage - 2 + i;
-            if (pageNum < 1) pageNum = i + 1;
-            if (pageNum > totalPages) return null;
-
-            const isCurrent = pageNum === currentPage;
-            return (
-              <button
-                key={pageNum}
-                onClick={() => navigateToPage(pageNum)}
-                className={`w-8 h-8 rounded-lg text-xs font-semibold transition-all ${
-                  isCurrent
-                    ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-200'
-                    : 'border border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
-                }`}
-              >
-                {pageNum}
-              </button>
-            );
-          })}
-        </div>
+        <span className="text-xs text-slate-600 px-2 font-medium">
+          {currentPage} / {totalPages}
+        </span>
 
         <button
           onClick={() => navigateToPage(currentPage + 1)}

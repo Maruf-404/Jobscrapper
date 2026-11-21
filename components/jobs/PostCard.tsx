@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import { ExternalLink, MapPin, Building, Calendar } from 'lucide-react';
-import { PostItem } from '@/lib/posts';
-import HighlightText from './HighlightText';
+import { PostItem } from '@/types/jobs';
+import HighlightText from '@/components/ui/HighlightText';
 
 interface PostCardProps {
   post: PostItem;
@@ -85,33 +85,32 @@ function PostCard({ post, highlightQuery }: PostCardProps) {
           </div>
         </div>
 
-        {/* Description snippet (only if authentic and meaningful) */}
-        {!isGenericDescription && (
-          <p className="text-xs text-[#475467] mt-2.5 line-clamp-2 leading-relaxed">
-            <HighlightText text={post.description!} highlight={highlightQuery} />
+        {/* Raw Location */}
+        {post.location_raw && post.location_raw.trim() !== (post.city || '').trim() && (
+          <div className="mt-1 text-[11px] text-[#98A2B3] truncate">
+            <HighlightText text={post.location_raw} highlight={highlightQuery} />
+          </div>
+        )}
+
+        {/* Optional Snippet */}
+        {!isGenericDescription && post.description && (
+          <p className="mt-3 text-xs text-[#475467] line-clamp-2 leading-relaxed">
+            <HighlightText text={post.description} highlight={highlightQuery} />
           </p>
         )}
       </div>
 
-      {/* Card Action */}
-      <div className="mt-3.5 pt-3 border-t border-[#F2F4F7] flex items-center justify-between">
-        <div>
-          {/\b(intern|internship|trainee|apprentice)\b/i.test(post.title) ? (
-            <span className="inline-flex items-center text-[11px] font-semibold text-[#027A48] bg-[#ECFDF3] px-2.5 py-0.5 rounded-full border border-[#ABEFC6]">
-              Internship
-            </span>
-          ) : (
-            <span className="inline-flex items-center text-[11px] font-semibold text-[#0D81FC] bg-[#EFF7FF] px-2.5 py-0.5 rounded-full border border-[#B2D7FE]">
-              Verified Fresher
-            </span>
-          )}
-        </div>
+      {/* Footer */}
+      <div className="flex items-center justify-between pt-4 mt-4 border-t border-[#EAECF0]">
+        <span className="text-[11px] font-semibold text-[#027A48] bg-[#ECFDF3] px-2 py-0.5 rounded-full border border-[#ABEFC6]">
+          Verified Fresher
+        </span>
 
         <a
           href={post.apply_url}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center space-x-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-[#0D81FC] text-white hover:bg-[#0B72DF] active:bg-[#0963C4] transition-colors shadow-xs shadow-[#0D81FC]/20"
+          className="inline-flex items-center space-x-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-lg text-white bg-[#0D81FC] hover:bg-[#0B72DF] transition-colors shadow-xs"
         >
           <span>Apply</span>
           <ExternalLink className="w-3.5 h-3.5" />

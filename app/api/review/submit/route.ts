@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
-import { getSupabaseServiceClient } from '@/lib/supabase-client';
+import { getSupabaseServiceClient } from '@/lib/supabase';
 
 function escapeCsvField(field: any): string {
   if (field === null || field === undefined) return '';

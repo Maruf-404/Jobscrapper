@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import JobsExplorer from './components/JobsExplorer';
+import JobsExplorer from '@/components/jobs/JobsExplorer';
 import { getAllActivePosts } from '@/lib/posts';
 
 export const revalidate = 300; // ISR revalidate every 300 seconds (PRD Section 8)

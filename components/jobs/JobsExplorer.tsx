@@ -3,7 +3,7 @@
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import SearchAndFilters from './SearchAndFilters';
 import PostCard from './PostCard';
-import { PostItem } from '@/lib/posts';
+import { PostItem } from '@/types/jobs';
 import { AlertCircle, Loader2, CheckCircle2, ArrowUp } from 'lucide-react';
 
 const INITIAL_BATCH_SIZE = 24;

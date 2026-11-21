@@ -1,4 +1,4 @@
-import { fetchAllSources } from './index';
+import { fetchAllSources } from '../../pipeline/sources/index';
 
 async function main() {
   console.log('Testing source fetchers...');

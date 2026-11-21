@@ -6,9 +6,6 @@ interface HighlightTextProps {
   className?: string;
 }
 
-/**
- * Escapes regex special characters in a string
- */
 function escapeRegExp(str: string): string {
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
@@ -22,7 +19,6 @@ export default function HighlightText({ text, highlight, className }: HighlightT
     return <span className={className}>{text}</span>;
   }
 
-  // Split search into individual words (length >= 2) to highlight multi-word queries
   const words = highlight
     .trim()
     .split(/\s+/)
@@ -48,7 +44,7 @@ export default function HighlightText({ text, highlight, className }: HighlightT
             {part}
           </mark>
         ) : (
-          part
+          <React.Fragment key={index}>{part}</React.Fragment>
         );
       })}
     </span>
